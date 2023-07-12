@@ -13,3 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+
+int main(){
+    printf("hello world\n");
+}
