@@ -28,6 +28,7 @@ typedef struct parco
     struct parco *sx, *dx, *parent;
 } parcoTree_t;
 
+struct parco* sentinel_parco = NULL;
 
 
 typedef struct stazione
@@ -37,6 +38,8 @@ typedef struct stazione
     struct stazione *sx, *dx, *parent;
     parcoTree_t *autos;
 } stazioneTree_t;
+
+struct stazione* sentinel_stazione = NULL;
 
 stazioneTree_t* staz_search(stazioneTree_t* x, int dist){
    if (x == NULL || dist == x->distanza){
@@ -63,73 +66,81 @@ parcoTree_t* auto_search(parcoTree_t* x, int dist){
 }
 
 
-void rot_sx_staz(stazioneTree_t* nodo, stazioneTree_t* x){
+void rot_sx_staz(stazioneTree_t* root, stazioneTree_t* x){
    stazioneTree_t *y;
    y = x->dx;
    x -> dx = y-> sx;
-   y -> sx -> parent = x;
-   y -> parent = x -> parent;
-
-   if (x == nodo -> sx){
-      nodo -> sx = nodo -> dx = y;
+   if (y->sx != sentinel_stazione){
+      y->sx->parent = x;
+   }
+   y->parent = x->parent ;
+   if (x->parent == sentinel_stazione){
+      root = y;
    }
    else{
       if(x == x->parent->sx){
-         x -> parent -> sx = y;
+         x->parent->sx = y;
       }
       else{
-         x -> parent -> dx = y;
+         x->parent->dx = y;
+         
       }
    }
-   y -> sx = x;
-   x -> parent = y;
+   y->sx = x;
+   x->parent = y;
 }
 
-void rot_sx_parco(parcoTree_t* nodo, parcoTree_t* x){
+
+void rot_sx_parco(parcoTree_t* root, parcoTree_t* x){
    parcoTree_t *y;
-   y = x->dx;
+     y = x->dx;
    x -> dx = y-> sx;
-   y -> sx -> parent = x;
-   y -> parent = x -> parent;
-
-   if (x == nodo -> sx){
-      nodo -> sx = nodo -> dx = y;
+   if (y->sx != sentinel_parco){
+      y->sx->parent = x;
+   }
+   y->parent = x->parent ;
+   if (x->parent == sentinel_parco){
+      root = y;
    }
    else{
       if(x == x->parent->sx){
-         x -> parent -> sx = y;
+         x->parent->sx = y;
       }
       else{
-         x -> parent -> dx = y;
+         x->parent->dx = y;
+         
       }
    }
-   y -> sx = x;
-   x -> parent = y;
+   y->sx = x;
+   x->parent = y;
 }
 
 
+// modificare sotto per rotaz a dx
 
 
-void rot_dx_staz(stazioneTree_t* nodo, stazioneTree_t* x){
+void rot_dx_staz(stazioneTree_t* root, stazioneTree_t* x){
    stazioneTree_t *y;
    y = x->sx;
    x -> sx = y-> dx;
-   y -> dx -> parent = x;
-   y -> parent = x -> parent;
-
-   if (x == nodo -> dx){
-      nodo -> dx = nodo -> sx = y;
+   if (y->dx != sentinel_stazione){
+      y->dx->parent = x;
+   }
+   y->parent = x->parent ;
+   if (x->parent == sentinel_stazione){
+      root = y;
    }
    else{
       if(x == x->parent->dx){
-         x -> parent -> dx = y;
+         x->parent->dx = y;
       }
       else{
-         x -> parent -> sx = y;
+         x->parent->sx = y;
+         
       }
    }
-   y -> dx = x;
-   x -> parent = y;
+   y->dx = x;
+   x->parent = y;
 }
 
 
@@ -137,26 +148,28 @@ void rot_dx_staz(stazioneTree_t* nodo, stazioneTree_t* x){
 
 
 
-void rot_dx_parco(parcoTree_t* nodo, parcoTree_t* x){
+void rot_dx_parco(parcoTree_t* root, parcoTree_t* x){
    parcoTree_t *y;
    y = x->sx;
    x -> sx = y-> dx;
-   y -> dx -> parent = x;
-   y -> parent = x -> parent;
-
-   if (x == nodo -> dx){
-      nodo -> dx = nodo -> sx = y;
+   if (y->dx != sentinel_parco){
+      y->dx->parent = x;
+   }
+   y->parent = x->parent ;
+   if (x->parent == sentinel_parco){
+      root = y;
    }
    else{
       if(x == x->parent->dx){
-         x -> parent -> dx = y;
+         x->parent->dx = y;
       }
       else{
-         x -> parent -> sx = y;
+         x->parent->sx = y;
+         
       }
    }
-   y -> dx = x;
-   x -> parent = y;
+   y->dx = x;
+   x->parent = y;
 }
 
 
@@ -165,58 +178,13 @@ void rot_dx_parco(parcoTree_t* nodo, parcoTree_t* x){
 
 
 
-void fixup_staz(stazioneTree_t* staz, stazioneTree_t* nodo)   
+void fixup_staz(stazioneTree_t* staz, stazioneTree_t* aggiunta)   
 {
-  stazioneTree_t *zio;
   
-  while(nodo->parent->colore == r)
-  {
-     if(nodo->parent == nodo->parent->parent->sx)
-     {
-        zio = nodo->parent->parent->dx;
-        if(zio->colore == r)
-        {
-           nodo->parent->colore = b;
-           zio->colore = b;
-           nodo->parent->parent->colore = r;
-           nodo = nodo->parent->parent;           
-        }
-        else
-        {
-           if(nodo == nodo->parent->dx)
-           {
-              nodo = nodo->parent;
-              rot_sx_staz(staz, nodo);
-           }
-           nodo->parent->colore = b;
-           nodo->parent->parent->colore = r;
-           rot_dx_staz(staz, nodo->parent->parent);           
-        }
-     }
-     else
-     {
-        zio = nodo->parent->parent->sx;
-        if(zio->colore == r)
-        {
-           nodo->parent->colore = b;
-           zio->colore = b;
-           nodo->parent->parent->colore = r;
-           nodo = nodo->parent->parent;           
-        }
-        else
-        {
-           if(nodo == nodo->parent->sx)
-           {
-              nodo = nodo->parent;
-              rot_dx_staz(staz, nodo);
-           }
-           nodo->parent->colore = b;
-           nodo->parent->parent->colore = r;
-           rot_sx_staz(staz, nodo->parent->parent);           
-        }
-     }
-  }
-  staz->sx->colore = b;  
+
+
+
+
 };
 
 
