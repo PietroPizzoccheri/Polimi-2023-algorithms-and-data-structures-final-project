@@ -17,8 +17,6 @@
 // strutture dati 
 
 
-
-
 typedef enum {r,b} colore_nodo_t;
 
 
@@ -39,6 +37,30 @@ typedef struct stazione
     struct stazione *sx, *dx, *parent;
     parcoTree_t *autos;
 } stazioneTree_t;
+
+stazioneTree_t* staz_search(stazioneTree_t* x, int dist){
+   if (x == NULL || dist == x->distanza){
+      return x;
+   }
+   if(dist < x->distanza){
+      return staz_search(x->sx , dist);
+   }
+   else{
+      return staz_search(x->dx , dist);
+   }
+}
+
+parcoTree_t* auto_search(parcoTree_t* x, int dist){
+   if (x == NULL || dist == x->autonomia){
+      return x;
+   }
+   if(dist < x->autonomia){
+      return auto_search(x->sx , dist);
+   }
+   else{
+      return auto_search(x->dx , dist);
+   }
+}
 
 
 void rot_sx_staz(stazioneTree_t* nodo, stazioneTree_t* x){
@@ -341,9 +363,9 @@ int inserisci_auto(parcoTree_t* staz, int dist){
 
 
 int main(){
-   int numero;
-   scanf("%d", &numero);
-   printf("Hai inserito il numero: %d\n", numero);
+   for(int i=0;i<15;i++){
+   char c=getchar();
+   printf("Hai inserito il carattere: %c\n", c);}
+   printf("n");
    return 0;
-    
 };
