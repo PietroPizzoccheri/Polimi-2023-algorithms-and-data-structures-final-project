@@ -398,6 +398,170 @@ void auto_insert(parcoTree* T, parcoNode* z){
    auto_insert_fixup(T,z);
 }
 
+void staz_delete_fixup(stazioneTree *T, stazioneNode *x){
+   stazioneNode *w;
+   if(x->colore == r || x->parent == T->Tnil){
+      x->colore = b;
+   }else if(x == x->parent->sx){
+      w = x->parent->dx;
+      if(w->colore == r){
+         w->colore = b;
+         x->parent->colore = r;
+         staz_rot_sx(T,x->parent);
+         w = x->parent->dx;
+      }
+      if(w->sx->colore == b && w->dx->colore == b){
+         w->colore = r;
+         staz_delete_fixup(T,x->parent);
+      }else if(w->dx->colore == b){
+         w->sx->colore = b;
+         w->colore = r;
+         staz_rot_dx(T,w);
+         w = x->parent->dx;
+      }
+      w->colore = x->parent->colore;
+      x->parent->colore = b;
+      w->dx->colore = b;
+      staz_rot_sx(T,x->parent);
+   }else{
+      w = x->parent->sx;
+      if(w->colore == r){
+         w->colore = b;
+         x->parent->colore = r;
+         staz_rot_dx(T,x->parent);
+         w = x->parent->sx;
+      }
+      if(w->dx->colore == b && w->sx->colore == b){
+         w->colore = r;
+         staz_delete_fixup(T,x->parent);
+      }else if(w->sx->colore == b){
+         w->dx->colore = b;
+         w->colore = r;
+         staz_rot_sx(T,w);
+         w = x->parent->sx;
+      }
+      w->colore = x->parent->colore;
+      x->parent->colore = b;
+      w->sx->colore = b;
+      staz_rot_dx(T,x->parent);
+   }
+}
+
+
+void auto_delete_fixup(parcoTree *T, parcoNode *x){
+   parcoNode *w;
+   if(x->colore == r || x->parent == T->Tnil){
+      x->colore = b;
+   }else if(x == x->parent->sx){
+      w = x->parent->dx;
+      if(w->colore == r){
+         w->colore = b;
+         x->parent->colore = r;
+         parco_rot_sx(T,x->parent);
+         w = x->parent->dx;
+      }
+      if(w->sx->colore == b && w->dx->colore == b){
+         w->colore = r;
+         auto_delete_fixup(T,x->parent);
+      }else if(w->dx->colore == b){
+         w->sx->colore = b;
+         w->colore = r;
+         parco_rot_dx(T,w);
+         w = x->parent->dx;
+      }
+      w->colore = x->parent->colore;
+      x->parent->colore = b;
+      w->dx->colore = b;
+      parco_rot_sx(T,x->parent);
+   }else{
+      w = x->parent->sx;
+      if(w->colore == r){
+         w->colore = b;
+         x->parent->colore = r;
+         parco_rot_dx(T,x->parent);
+         w = x->parent->sx;
+      }
+      if(w->dx->colore == b && w->sx->colore == b){
+         w->colore = r;
+         auto_delete_fixup(T,x->parent);
+      }else if(w->sx->colore == b){
+         w->dx->colore = b;
+         w->colore = r;
+         parco_rot_sx(T,w);
+         w = x->parent->sx;
+      }
+      w->colore = x->parent->colore;
+      x->parent->colore = b;
+      w->sx->colore = b;
+      parco_rot_dx(T,x->parent);
+   }
+}
+
+
+// return y?
+void staz_delete(stazioneTree *T, stazioneNode *z){
+   stazioneNode *y,*x;
+   if(z->sx == T->Tnil || z->dx == T->Tnil){
+      y = z;
+   }else{
+      y = staz_successor(z,T);
+   }
+   if(y->sx != T->Tnil){
+      x = y->sx;
+   }
+   else{
+      x = y->dx;
+      x->parent = y->parent;
+   }
+   if(y->parent == T->Tnil){
+      T->root = x;
+   }else if(y == y->parent->sx){
+      y->parent->sx = x;
+   }else{
+      y->parent->dx = x;
+   }
+   if(y != z){
+      z->distanza = y->distanza;
+   }
+   if(y->colore == b){
+      staz_delete_fixup(T,x);
+   }
+}
+
+void auto_delete(parcoTree *T, parcoNode *z){
+   parcoNode *y,*x;
+   if(z->sx == T->Tnil || z->dx == T->Tnil){
+      y = z;
+   }else{
+      y = auto_successor(z,T);
+   }
+   if(y->sx != T->Tnil){
+      x = y->sx;
+   }
+   else{
+      x = y->dx;
+      x->parent = y->parent;
+   }
+   if(y->parent == T->Tnil){
+      T->root = x;
+   }else if(y == y->parent->sx){
+      y->parent->sx = x;
+   }else{
+      y->parent->dx = x;
+   }
+   if(y != z){
+      z->autonomia = y->autonomia;
+   }
+   if(y->colore == b){
+      auto_delete_fixup(T,x);
+   }
+}
+
+
+
+
+
+
 
 
 
