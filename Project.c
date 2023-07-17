@@ -145,6 +145,258 @@ parcoNode* auto_successor(parcoNode* x, parcoTree* t){
    return y;
 }
 
+stazioneNode* staz_predecessor(stazioneNode* x, stazioneTree* t){
+   stazioneNode* y;
+   if(x->sx != NULL){
+      t->curr = x->sx;
+      return staz_max(t);
+   }
+   y = x->parent;
+   while ( y != NULL && x == y->sx) 
+   {
+      x = y;
+      y = y->parent;
+   }
+   return y;
+}
+
+parcoNode* auto_predecessor(parcoNode* x, parcoTree* t){
+   parcoNode* y;
+   if(x->sx != NULL){
+      t->curr = x->sx;
+      return auto_max(t);
+   }
+   y = x->parent;
+   while ( y != NULL && x == y->sx) 
+   {
+      x = y;
+      y = y->parent;
+   }
+   return y;
+}
+
+
+
+void staz_rot_sx(stazioneTree *T, stazioneNode *x){
+   stazioneNode* y;
+   y = x->dx;
+   x->dx = y->sx;
+   if(y->sx != T->Tnil){
+      y->sx->parent = x;
+   }
+   y->parent = x->parent;
+   if(x->parent == T->Tnil){
+      T->root = y;
+   }
+   else if(x == x->parent->sx){
+      x->parent->sx = y;
+   }else{
+      x->parent->dx = y;
+   }
+   y->sx = x;
+   x->parent = y;
+}
+
+void parco_rot_sx(parcoTree *T, parcoNode *x){
+   parcoNode* y;
+   y = x->dx;
+   x->dx = y->sx;
+   if(y->sx != T->Tnil){
+      y->sx->parent = x;
+   }
+   y->parent = x->parent;
+   if(x->parent == T->Tnil){
+      T->root = y;
+   }
+   else if(x == x->parent->sx){
+      x->parent->sx = y;
+   }else{
+      x->parent->dx = y;
+   }
+   y->sx = x;
+   x->parent = y;
+}
+
+void staz_rot_dx(stazioneTree *T, stazioneNode *x){
+   stazioneNode* y;
+   y = x->sx;
+   x->sx = y->dx;
+   if(y->dx != T->Tnil){
+      y->dx->parent = x;
+   }
+   y->parent = x->parent;
+   if(x->parent == T->Tnil){
+      T->root = y;
+   }
+   else if(x == x->parent->dx){
+      x->parent->dx = y;
+   }else{
+      x->parent->sx = y;
+   }
+   y->dx = x;
+   x->parent = y;
+}
+
+void parco_rot_dx(parcoTree *T, parcoNode *x){
+   parcoNode* y;
+   y = x->sx;
+   x->sx = y->dx;
+   if(y->dx != T->Tnil){
+      y->dx->parent = x;
+   }
+   y->parent = x->parent;
+   if(x->parent == T->Tnil){
+      T->root = y;
+   }
+   else if(x == x->parent->dx){
+      x->parent->dx = y;
+   }else{
+      x->parent->sx = y;
+   }
+   y->dx = x;
+   x->parent = y;
+}
+
+void staz_insert_fixup(stazioneTree * T, stazioneNode * z){
+   stazioneNode* x,*y;
+   if(z == T->root){
+      T->root->colore = b;
+   }else{
+      x = z->parent;
+      if(x->colore == r){
+         if(x == x->parent->sx){
+            y = x->parent->dx;
+            if(y->colore == r){
+               x->colore = b;
+               y->colore = b;
+               x->parent->colore = r;
+               staz_insert_fixup(T,x->parent);
+            }
+            else if(z == x->dx){
+               z = x;
+               staz_rot_sx(T,z);
+               x = z->parent;
+            }
+         x->colore = b;
+         x->parent->colore = r;
+         staz_rot_dx(T, x->parent);
+         }else{
+         y = x->parent->sx;
+            if(y->colore == r){
+               x->colore = b;
+               y->colore = b;
+               x->parent->colore = r;
+               staz_insert_fixup(T,x->parent);
+            }
+            else if(z == x->sx){
+               z = x;
+               staz_rot_dx(T,z);
+               x = z->parent;
+            }
+         x->colore = b;
+         x->parent->colore = r;
+         staz_rot_sx(T, x->parent);
+         }
+      }
+   }
+}
+
+void auto_insert_fixup(parcoTree * T, parcoNode * z){
+   parcoNode* x,*y;
+   if(z == T->root){
+      T->root->colore = b;
+   }else{
+      x = z->parent;
+      if(x->colore == r){
+         if(x == x->parent->sx){
+            y = x->parent->dx;
+            if(y->colore == r){
+               x->colore = b;
+               y->colore = b;
+               x->parent->colore = r;
+               auto_insert_fixup(T,x->parent);
+            }
+            else if(z == x->dx){
+               z = x;
+               parco_rot_sx(T,z);
+               x = z->parent;
+            }
+         x->colore = b;
+         x->parent->colore = r;
+         parco_rot_dx(T, x->parent);
+         }else{
+         y = x->parent->sx;
+            if(y->colore == r){
+               x->colore = b;
+               y->colore = b;
+               x->parent->colore = r;
+               auto_insert_fixup(T,x->parent);
+            }
+            else if(z == x->sx){
+               z = x;
+               parco_rot_dx(T,z);
+               x = z->parent;
+            }
+         x->colore = b;
+         x->parent->colore = r;
+         parco_rot_sx(T, x->parent);
+         }
+      }
+   }
+}
+
+void staz_insert(stazioneTree* T, stazioneNode* z){
+   stazioneNode *y,*x;
+   y = T->Tnil;
+   x = T->root;
+   while( x != T->Tnil){
+      y = x;
+      if (z->distanza < x->distanza){
+         x = x->sx;
+      }else{
+         x = x->dx;
+      }
+   }
+   z->parent = y;
+   if(y == T->Tnil){
+      T->root = z;
+   }else if(z->distanza < y->distanza){
+      y->sx = z;
+   }else{
+      y->dx = z;
+      z->sx = T->Tnil;
+      z->dx = T->Tnil;
+      z->colore = r;
+   }
+   staz_insert_fixup(T,z);
+}
+
+
+void auto_insert(parcoTree* T, parcoNode* z){
+   parcoNode *y,*x;
+   y = T->Tnil;
+   x = T->root;
+   while( x != T->Tnil){
+      y = x;
+      if (z->autonomia < x->autonomia){
+         x = x->sx;
+      }else{
+         x = x->dx;
+      }
+   }
+   z->parent = y;
+   if(y == T->Tnil){
+      T->root = z;
+   }else if(z->autonomia < y->autonomia){
+      y->sx = z;
+   }else{
+      y->dx = z;
+      z->sx = T->Tnil;
+      z->dx = T->Tnil;
+      z->colore = r;
+   }
+   auto_insert_fixup(T,z);
+}
 
 
 
