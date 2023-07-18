@@ -17,6 +17,7 @@
 // strutture dati 
 
 
+
 typedef enum {r,b} colore_nodo_t;
 
 // nodo auto
@@ -558,17 +559,55 @@ void auto_delete(parcoTree *T, parcoNode *z){
 }
 
 
+/*
+void leggi_comando(char c){
+   
+   int i=0;
+   while(c != ' '){
+      comando[i] = c;
+      c=getchar();
+      i++;
+   }
 
+}
 
+void leggi_numero(char c){
+   int i=0;
+   while(c != ' '){
+      comando[i] = c;
+      c=getchar();
+      i++;
+   }
+   input_num = atoi(comando);
+   printf("numero letto: %d\n",input_num);
+}
 
-
-
-
+*/
 
 int main(){
-   for(int i=0;i<15;i++){
-   char c=getchar();
-   printf("Hai inserito il carattere: %c\n", c);}
-   printf("n");
+   char c = getchar();
+   char *comando;
+   int i=0;
+   comando = malloc(sizeof(char));
+   while(c != EOF){
+      while(c != ' ' && c != '\n'){
+         i++;
+         comando = realloc(comando,sizeof(char)*i);
+         comando[i-1] = c;
+         c=getchar();
+      }
+      if(c == '\n'){
+         i++;
+         comando = realloc(comando,sizeof(char)*i);
+         comando[i-1] = '\n';
+      }
+      if(c == ' '){    
+         i++;
+         comando = realloc(comando,sizeof(char)*i);
+         comando[i-1] = ' ';
+      }
+      c=getchar();
+   }
+   printf("%s\n",comando);
    return 0;
 };
