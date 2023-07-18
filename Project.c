@@ -16,7 +16,7 @@
 
 // strutture dati 
 
-
+typedef enum {false,true} bool;
 
 typedef enum {r,b} colore_nodo_t;
 
@@ -559,55 +559,50 @@ void auto_delete(parcoTree *T, parcoNode *z){
 }
 
 
-/*
-void leggi_comando(char c){
-   
-   int i=0;
-   while(c != ' '){
-      comando[i] = c;
-      c=getchar();
-      i++;
-   }
-
-}
-
-void leggi_numero(char c){
-   int i=0;
-   while(c != ' '){
-      comando[i] = c;
-      c=getchar();
-      i++;
-   }
-   input_num = atoi(comando);
-   printf("numero letto: %d\n",input_num);
-}
-
-*/
-
 int main(){
+   bool check = false;
    char c = getchar();
-   char *comando;
-   int i=0;
-   comando = malloc(sizeof(char));
+   char *buffer, *comando, *valore;
+   int i=0,counter=0,val,*valoricomando;
+   valoricomando = malloc(sizeof(int));
    while(c != EOF){
+      if(check == false){
+      i=0;
+      buffer = malloc(sizeof(char));
       while(c != ' ' && c != '\n'){
          i++;
-         comando = realloc(comando,sizeof(char)*i);
-         comando[i-1] = c;
+         buffer = realloc(buffer,sizeof(char)*i);
+         buffer[i-1] = c;
          c=getchar();
       }
-      if(c == '\n'){
-         i++;
-         comando = realloc(comando,sizeof(char)*i);
-         comando[i-1] = '\n';
-      }
-      if(c == ' '){    
-         i++;
-         comando = realloc(comando,sizeof(char)*i);
-         comando[i-1] = ' ';
+         comando = malloc(sizeof(char)*(strlen(buffer)-1));
+         strcpy(comando,buffer);
+         free(buffer);
+         check = true;
+      }else{  // mettere check a true quando becco \n
+
+        // printf("AAA");
+         i=0;
+         buffer = malloc(sizeof(char));
+         while(c != ' ' && c != '\n'){
+            i++;
+            buffer = realloc(buffer,sizeof(char)*i);
+            buffer[i-1] = c;
+            c = getchar();
+         }
+         counter ++;
+         valore = malloc(sizeof(char)*(strlen(buffer)-1));
+         strcpy(valore,buffer);
+         free(buffer);
+         val = atoi(valore);
+         valoricomando = realloc(valoricomando,sizeof(int)*counter);
+         valoricomando[counter-1] = val;
+         
       }
       c=getchar();
    }
    printf("%s\n",comando);
+   printf("%d", valoricomando[0]);
+   printf(" %d\n", valoricomando[1]);
    return 0;
 };
