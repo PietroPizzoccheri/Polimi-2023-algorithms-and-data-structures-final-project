@@ -370,6 +370,7 @@ void staz_insert(stazioneTree* T, stazioneNode* z){
       z->colore = r;
    }
    staz_insert_fixup(T,z);
+   printf("\nstazione inserita");
 }
 
 
@@ -558,51 +559,167 @@ void auto_delete(parcoTree *T, parcoNode *z){
    }
 }
 
+stazioneNode* crea_stazione(int dist){
+   stazioneNode* newstaz = (struct stazioneNode*)malloc(sizeof(struct stazioneNode));
+   parcoTree* newparco = (struct parcoTree*)malloc(sizeof(struct parcoTree));
+   newparco->curr = NULL;
+   newparco->root = NULL;
+   newparco->Tnil = NULL;
+   newstaz->distanza = dist;
+   newstaz->parent = NULL;
+   newstaz->dx = NULL;
+   newstaz->sx = NULL;
+   newstaz->colore = b; // da verificare cosa convenga
+   newstaz->autos = newparco;
+   printf("\nstazione e albero parco auto creati");
+   return newstaz;
+}
+
+parcoNode* crea_auto(int auton){
+   parcoNode * newauto = (struct parcoNode*)malloc(sizeof(struct parcoNode));
+   newauto->autonomia = auton;
+   newauto->dx = NULL;
+   newauto->sx = NULL;
+   newauto->parent = NULL;
+   newauto->colore = b;
+   return newauto;
+}
+
+stazioneTree* crea_alberoStazioni(){
+   stazioneTree* newStazTree = (struct stazioneTree*)malloc(sizeof(struct stazioneTree));
+   newStazTree->Tnil = NULL;
+   newStazTree->curr = NULL;
+   newStazTree->root = NULL;
+   return newStazTree;
+}
+
+
 
 int main(){
+   stazioneTree* Stazioni;
+   Stazioni = crea_alberoStazioni();
+   stazioneNode* Staz_agg;
+   //parcoNode auto_agg;
    bool check = false;
    char c = getchar();
    char *buffer, *comando, *valore;
    int i=0,counter=0,val,*valoricomando;
    valoricomando = malloc(sizeof(int));
    while(c != EOF){
+
       if(check == false){
+
       i=0;
       buffer = malloc(sizeof(char));
+
       while(c != ' ' && c != '\n'){
          i++;
          buffer = realloc(buffer,sizeof(char)*i);
          buffer[i-1] = c;
          c=getchar();
       }
-         comando = malloc(sizeof(char)*(strlen(buffer)-1));
-         strcpy(comando,buffer);
-         free(buffer);
-         check = true;
-      }else{  // mettere check a true quando becco \n
+      comando = malloc(sizeof(char)*(strlen(buffer)-1));
+      strcpy(comando,buffer);
+      free(buffer);
+      check = true;
 
-        // printf("AAA");
+      }
+      if(check == true){  
+
+         if(c == ' '){
+            c=getchar();
+         }
          i=0;
          buffer = malloc(sizeof(char));
+
          while(c != ' ' && c != '\n'){
             i++;
             buffer = realloc(buffer,sizeof(char)*i);
             buffer[i-1] = c;
             c = getchar();
          }
-         counter ++;
          valore = malloc(sizeof(char)*(strlen(buffer)-1));
          strcpy(valore,buffer);
          free(buffer);
          val = atoi(valore);
-         valoricomando = realloc(valoricomando,sizeof(int)*counter);
-         valoricomando[counter-1] = val;
+         free(valore);
+         valoricomando = realloc(valoricomando,sizeof(int)*(counter+1));
+         valoricomando[counter] = val;     
+        // printf( " %d",valoricomando[counter]);
+         counter ++;
+      }
+      
+
+
+      // fino  a qui tutto bene, aggiungere free al cambio linea e aggiunte valori nell'albero ||  ho i valori in valoricomando in ordine e il comando in comando
+
+      
+      
+
+      if(c == '\n'){
+
+         if(strcmp(comando , "aggiungi-stazione") == 0){
+            for(int a=0; a<10;a++){
+               printf( "%d ",valoricomando[a]);
+            }
+            int dist = valoricomando[0];
+            //int n_auto = valoricomando[1];
+            Staz_agg = crea_stazione(dist);
+            staz_insert(Stazioni, Staz_agg);
+
          
       }
-      c=getchar();
+
+
+      if(strcmp(comando , "demolisci-stazione") == 0){
+         printf("AAAAA");
+      }
+
+
+      if(strcmp(comando , "aggiungi-auto") == 0){
+         printf("AAAAA");
+      }
+
+
+      if(strcmp(comando , "rottama-auto") == 0){
+         printf("AAAAA");
+      }
+
+
+      if(strcmp(comando , "pianifica-percorso") == 0){
+
+
+
+         printf("AAAAA");
+      }
+
+      free(valoricomando);
+      valoricomando = malloc(sizeof(int));
+      //free(comando);
+     
+
+
+
+
+      counter=0;
+
+
+
+      // fino a qui dentro l'if di \n
+
+      }
+      /*POSTO PER CHIAMATA A FUNZIONI SUGLI ALBERI E FUNZIONI DEL RPOBLEMA
+      
+      DA DEFINIRE              */
+     
+
+    //  free(comando);
+     // free(valoricomando);
+     // counter=0;
+      i=0;
+      // mettere check a true quando becco \n
+      // AGGIUNGERE FREE QUANDO BECCO \n
+      c = getchar();
    }
-   printf("%s\n",comando);
-   printf("%d", valoricomando[0]);
-   printf(" %d\n", valoricomando[1]);
    return 0;
 };
