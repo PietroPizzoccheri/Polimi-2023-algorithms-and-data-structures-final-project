@@ -1,5 +1,15 @@
-1 2 3 4 5 6 7 8 9 10 
-stazione creata
-stazione inserita0 11 12 13 14 15 16 17 18 19 
-stazione creata
+
+stazione a 1 e albero parco auto creati
+stazione inserita
+auto creata con autonomia 50
+auto con autonomia 50 inserita nel parco auto
+stazione a 234 e albero parco auto creati
+stazione inserita
+stazione a 11 e albero parco auto creati
+stazione inserita
+stazione a 2 e albero parco auto creati
+stazione inserita
+stazione a 4 e albero parco auto creati
+stazione inserita
+stazione a 3 e albero parco auto creati
 stazione inserita

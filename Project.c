@@ -81,7 +81,7 @@ parcoNode* auto_search(parcoTree* x, int dist){
 
 //sempre settare curr = root
 stazioneNode* staz_min(stazioneTree* x){
-   while (x->curr->sx != NULL)
+   while (x->curr->sx != NULL && x->curr->sx != x->Tnil)
    {
       x->curr = x->curr->sx;
    }
@@ -90,7 +90,7 @@ stazioneNode* staz_min(stazioneTree* x){
 
 //sempre settare curr = root
 parcoNode* auto_min(parcoTree* x){
-   while (x->curr->sx != NULL)
+   while (x->curr->sx != NULL && x->curr->sx != x->Tnil)
    {
       x->curr = x->curr->sx;
    }
@@ -100,7 +100,7 @@ parcoNode* auto_min(parcoTree* x){
 
 //sempre settare curr = root
 stazioneNode* staz_max(stazioneTree* x){
-   while (x->curr->dx != NULL)
+   while (x->curr->sx != NULL && x->curr->sx != x->Tnil)
    {
       x->curr = x->curr->dx;
    }
@@ -109,7 +109,7 @@ stazioneNode* staz_max(stazioneTree* x){
 
 //sempre settare curr = root
 parcoNode* auto_max(parcoTree* x){
-   while (x->curr->dx != NULL)
+   while (x->curr->sx != NULL && x->curr->sx != x->Tnil)
    {
       x->curr = x->curr->dx;
    }
@@ -118,12 +118,12 @@ parcoNode* auto_max(parcoTree* x){
 
 stazioneNode* staz_successor(stazioneNode* x, stazioneTree* t){
    stazioneNode* y;
-   if(x->dx != NULL){
+   if(x->dx != NULL || x->dx != t->Tnil){
       t->curr = x->dx;
       return staz_min(t);
    }
    y = x->parent;
-   while ( y != NULL && x == y->dx) 
+   while ( y != NULL && y != t->Tnil && x == y->dx) 
    {
       x = y;
       y = y->parent;
@@ -133,12 +133,12 @@ stazioneNode* staz_successor(stazioneNode* x, stazioneTree* t){
 
 parcoNode* auto_successor(parcoNode* x, parcoTree* t){
    parcoNode* y;
-   if(x->dx != NULL){
+   if(x->dx != NULL || x->dx != t->Tnil){
       t->curr = x->dx;
       return auto_min(t);
    }
    y = x->parent;
-   while ( y != NULL && x == y->dx) 
+   while ( y != NULL && y != t->Tnil && x == y->dx) 
    {
       x = y;
       y = y->parent;
@@ -189,10 +189,12 @@ void staz_rot_sx(stazioneTree *T, stazioneNode *x){
    if(x->parent == T->Tnil){
       T->root = y;
    }
-   else if(x == x->parent->sx){
-      x->parent->sx = y;
-   }else{
-      x->parent->dx = y;
+   else{ 
+      if(x == x->parent->sx){
+         x->parent->sx = y;
+      }else{
+         x->parent->dx = y;
+      }
    }
    y->sx = x;
    x->parent = y;
@@ -209,10 +211,12 @@ void parco_rot_sx(parcoTree *T, parcoNode *x){
    if(x->parent == T->Tnil){
       T->root = y;
    }
-   else if(x == x->parent->sx){
-      x->parent->sx = y;
-   }else{
-      x->parent->dx = y;
+   else{ 
+      if(x == x->parent->sx){
+         x->parent->sx = y;
+      }else{
+         x->parent->dx = y;
+      }
    }
    y->sx = x;
    x->parent = y;
@@ -229,10 +233,12 @@ void staz_rot_dx(stazioneTree *T, stazioneNode *x){
    if(x->parent == T->Tnil){
       T->root = y;
    }
-   else if(x == x->parent->dx){
-      x->parent->dx = y;
-   }else{
-      x->parent->sx = y;
+   else{ 
+      if(x == x->parent->dx){
+         x->parent->dx = y;
+      }else{
+         x->parent->sx = y;
+      }
    }
    y->dx = x;
    x->parent = y;
@@ -249,10 +255,12 @@ void parco_rot_dx(parcoTree *T, parcoNode *x){
    if(x->parent == T->Tnil){
       T->root = y;
    }
-   else if(x == x->parent->dx){
-      x->parent->dx = y;
-   }else{
-      x->parent->sx = y;
+   else{ 
+      if(x == x->parent->dx){
+         x->parent->dx = y;
+      }else{
+         x->parent->sx = y;
+      }
    }
    y->dx = x;
    x->parent = y;
@@ -260,48 +268,98 @@ void parco_rot_dx(parcoTree *T, parcoNode *x){
 
 void staz_insert_fixup(stazioneTree * T, stazioneNode * z){
    stazioneNode* x,*y;
+
+
    if(z == T->root){
       T->root->colore = b;
+      printf("         ZEBBI-root");
    }else{
-      x = z->parent;
-      if(x->colore == r){
-         if(x == x->parent->sx){
-            y = x->parent->dx;
-            if(y->colore == r){
+      x = z->parent; // x è parent di z
+      if(x->colore == r){ // se parent è rosso
+         printf("      nodo rosso");
+
+
+
+
+         if(x == x->parent->sx){  // se x è figlio sinistro
+
+            printf("     x è figlio sx");
+            y = x->parent->dx;  // y = figlio destro del parent di x
+            if(y->colore == r){   //se y è rosso
+
+
+               printf(" caso 1");
                x->colore = b;
                y->colore = b;
                x->parent->colore = r;
                staz_insert_fixup(T,x->parent);
+
+
             }
-            else if(z == x->dx){
+            if(y->colore == b){ if(z == x->dx){
+
+
+               printf(" caso 2");
                z = x;
                staz_rot_sx(T,z);
                x = z->parent;
+
+
             }
+
+
          x->colore = b;
          x->parent->colore = r;
          staz_rot_dx(T, x->parent);
-         }else{
-         y = x->parent->sx;
-            if(y->colore == r){
+         printf("caso  3");
+            }
+
+
+         }
+
+
+
+/*
+         if(x == x->parent->dx){
+
+            printf("x è figlio dx");
+            y = x->parent->sx;  // y = figlio sinistro del parent di x
+            if(y->colore == r){   //se y è rosso
+
+
+               printf(" caso 1");
                x->colore = b;
                y->colore = b;
                x->parent->colore = r;
                staz_insert_fixup(T,x->parent);
+
+
             }
-            else if(z == x->sx){
-               z = x;
-               staz_rot_dx(T,z);
-               x = z->parent;
+            if(y->colore == b){ 
+
+               if(z == x->sx){
+
+                  printf(" caso 2");
+                  z = x;
+                  staz_rot_dx(T,z);
+                  x = z->parent;
+
+
             }
+
+
          x->colore = b;
          x->parent->colore = r;
          staz_rot_sx(T, x->parent);
+         printf("caso  3");
+            
+            
          }
-      }
+      }*/
    }
 }
 
+}
 void auto_insert_fixup(parcoTree * T, parcoNode * z){
    parcoNode* x,*y;
    if(z == T->root){
@@ -359,17 +417,27 @@ void staz_insert(stazioneTree* T, stazioneNode* z){
       }
    }
    z->parent = y;
+
    if(y == T->Tnil){
+
       T->root = z;
-   }else if(z->distanza < y->distanza){
-      y->sx = z;
+
    }else{
-      y->dx = z;
-      z->sx = T->Tnil;
-      z->dx = T->Tnil;
-      z->colore = r;
+
+      if(z->distanza < y->distanza){
+
+         y->sx = z;
+
+      }else{
+
+         y->dx = z;
+
+      }
    }
-   staz_insert_fixup(T,z);
+   z->sx = T->Tnil;
+   z->dx = T->Tnil;
+   z->colore = r;
+   //staz_insert_fixup(T,z);
    printf("\nstazione inserita");
 }
 
@@ -387,17 +455,28 @@ void auto_insert(parcoTree* T, parcoNode* z){
       }
    }
    z->parent = y;
+
    if(y == T->Tnil){
+
       T->root = z;
-   }else if(z->autonomia < y->autonomia){
-      y->sx = z;
+
    }else{
-      y->dx = z;
-      z->sx = T->Tnil;
-      z->dx = T->Tnil;
-      z->colore = r;
+
+      if(z->autonomia < y->autonomia){
+
+         y->sx = z;
+
+      }else{
+
+         y->dx = z;
+
+      }
    }
-   auto_insert_fixup(T,z);
+   z->sx = T->Tnil;
+   z->dx = T->Tnil;
+   z->colore = r;
+   //auto_insert_fixup(T,z);
+   printf("\nauto con autonomia %d inserita nel parco auto", z->autonomia);
 }
 
 void staz_delete_fixup(stazioneTree *T, stazioneNode *x){
@@ -557,21 +636,22 @@ void auto_delete(parcoTree *T, parcoNode *z){
    if(y->colore == b){
       auto_delete_fixup(T,x);
    }
+   free(z);
 }
 
 stazioneNode* crea_stazione(int dist){
    stazioneNode* newstaz = (struct stazioneNode*)malloc(sizeof(struct stazioneNode));
    parcoTree* newparco = (struct parcoTree*)malloc(sizeof(struct parcoTree));
-   newparco->curr = NULL;
-   newparco->root = NULL;
    newparco->Tnil = NULL;
+   newparco->curr = newparco->Tnil;
+   newparco->root = newparco->Tnil;
    newstaz->distanza = dist;
    newstaz->parent = NULL;
    newstaz->dx = NULL;
    newstaz->sx = NULL;
    newstaz->colore = b; // da verificare cosa convenga
    newstaz->autos = newparco;
-   printf("\nstazione e albero parco auto creati");
+   printf("\nstazione a %d e albero parco auto creati", newstaz->distanza);
    return newstaz;
 }
 
@@ -582,14 +662,15 @@ parcoNode* crea_auto(int auton){
    newauto->sx = NULL;
    newauto->parent = NULL;
    newauto->colore = b;
+   printf("\nauto creata con autonomia %d", newauto->autonomia);
    return newauto;
 }
 
 stazioneTree* crea_alberoStazioni(){
    stazioneTree* newStazTree = (struct stazioneTree*)malloc(sizeof(struct stazioneTree));
    newStazTree->Tnil = NULL;
-   newStazTree->curr = NULL;
-   newStazTree->root = NULL;
+   newStazTree->curr = newStazTree->Tnil;
+   newStazTree->root = newStazTree->Tnil;
    return newStazTree;
 }
 
@@ -599,7 +680,7 @@ int main(){
    stazioneTree* Stazioni;
    Stazioni = crea_alberoStazioni();
    stazioneNode* Staz_agg;
-   //parcoNode auto_agg;
+   parcoNode* auto_agg;
    bool check = false;
    char c = getchar();
    char *buffer, *comando, *valore;
@@ -659,15 +740,17 @@ int main(){
       if(c == '\n'){
 
          if(strcmp(comando , "aggiungi-stazione") == 0){
-            for(int a=0; a<10;a++){
-               printf( "%d ",valoricomando[a]);
-            }
+            /*for(int a=0; a<5;a++){
+              printf( "%d ",valoricomando[a]);
+            }*/
             int dist = valoricomando[0];
-            //int n_auto = valoricomando[1];
+            int n_auto = valoricomando[1];
             Staz_agg = crea_stazione(dist);
             staz_insert(Stazioni, Staz_agg);
-
-         
+            for(int a=2; a < n_auto+2; a++){
+              auto_agg = crea_auto(valoricomando[a]);
+              auto_insert(Staz_agg->autos , auto_agg);
+            }
       }
 
 
@@ -702,7 +785,7 @@ int main(){
 
 
       counter=0;
-
+      check = false;
 
 
       // fino a qui dentro l'if di \n

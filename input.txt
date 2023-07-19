@@ -1,2 +1,7 @@
-aggiungi-stazione 1 2 3 4 5 6 7 8 9 10
-aggiungi-stazione 11 12 13 14 15 16 17 18 19
+aggiungi-stazione 1 1 50
+aggiungi-stazione 234 0
+aggiungi-stazione 11 0
+aggiungi-stazione 2 0
+aggiungi-stazione 4 0
+aggiungi-stazione 3 0
+
