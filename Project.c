@@ -32,7 +32,7 @@ typedef struct parcoNode
 
 // albero parco auto
 typedef struct parcoTree{
-   parcoNode *root, *Tnil, *curr;
+   parcoNode *root, *Tnil;
 }parcoTree;
 
 //nodo stazione
@@ -47,29 +47,29 @@ typedef struct stazioneNode
 //albero stazioni
 typedef struct stazioneTree
 {
-   stazioneNode *root,*curr,*Tnil;
+   stazioneNode *root,*Tnil;
 }stazioneTree;
 
 stazioneNode* staz_search(stazioneTree* albero, int dist){
    stazioneNode *x = albero->root;
+
    while(x != albero->Tnil){
       if(x->distanza == dist){
-         //printf("\n returno x");
-         //printf(" ");
+         printf("\n returno x");
          return x;
          //printf("\nqualcosa non va");
       }
       if(dist < x->distanza){
-         //printf("\nvado a sx\n");
+         printf("\nvado a sx\n");
          x = x->sx;
-         //printf("\ntrovo %d",x->distanza);
+         printf("\ntrovo %d",x->distanza);
       }
       if(dist > x->distanza){
-         //printf("\nvado a dx da %d\n", x->distanza);
+         printf("\nvado a dx da %d\n", x->distanza);
          x = x->dx;
-        // printf("\ntrovo %d",x->distanza);
+         printf("\ntrovo %d",x->distanza);
       }
-      //printf("\n esco dagli if");
+      //printf("\nesco dagli if");
    }
    return albero->Tnil;
 }
@@ -90,43 +90,38 @@ parcoNode* auto_search(parcoTree* albero, int auton){
    return albero->Tnil;
 }
 
-stazioneNode* staz_min(stazioneTree* x){
-   while (x->curr->sx != NULL && x->curr->sx != x->Tnil)
-   {
-      x->curr = x->curr->sx;
+stazioneNode* staz_min(stazioneTree* T , stazioneNode *x){
+   while (x->sx != T->Tnil){
+      x = x->sx;
    }
-   return x->curr;
+   return x;
 }
 
-parcoNode* auto_min(parcoTree* x){
-   while (x->curr->sx != NULL && x->curr->sx != x->Tnil)
-   {
-      x->curr = x->curr->sx;
+stazioneNode* staz_max(stazioneTree* T , stazioneNode *x){
+   while (x->dx != T->Tnil){
+      x = x->dx;
    }
-   return x->curr;
+   return x;
 }
 
-stazioneNode* staz_max(stazioneTree* x){
-   while (x->curr->sx != NULL && x->curr->sx != x->Tnil)
-   {
-      x->curr = x->curr->dx;
+parcoNode* auto_min(parcoTree* T , parcoNode *x){
+   while (x->sx != T->Tnil){
+      x = x->sx;
    }
-   return x->curr;
+   return x;
 }
 
-parcoNode* auto_max(parcoTree* x){
-   while (x->curr->sx != NULL && x->curr->sx != x->Tnil)
-   {
-      x->curr = x->curr->dx;
+parcoNode* auto_max(parcoTree* T , parcoNode *x){
+   while (x->dx != T->Tnil){
+      x = x->dx;
    }
-   return x->curr;
+   return x;
 }
 
 stazioneNode* staz_successor(stazioneNode* x, stazioneTree* t){
    stazioneNode* y;
    if(x->dx != t->Tnil){
-      t->curr = x->dx;
-      return staz_min(t);
+      return staz_min(t , x->dx);
    }
    y = x->parent;
    while ( y != t->Tnil && x == y->dx) 
@@ -141,8 +136,7 @@ stazioneNode* staz_successor(stazioneNode* x, stazioneTree* t){
 parcoNode* auto_successor(parcoNode* x, parcoTree* t){
    parcoNode* y;
    if( x->dx != t->Tnil){
-      t->curr = x->dx;
-      return auto_min(t);
+      return auto_min(t , x->dx);
    }
    y = x->parent;
    while ( y != t->Tnil && x == y->dx) 
@@ -153,124 +147,85 @@ parcoNode* auto_successor(parcoNode* x, parcoTree* t){
    return y;
 }
 
-stazioneNode* staz_predecessor(stazioneNode* x, stazioneTree* t){
-   stazioneNode* y;
-   if(x->sx != NULL){
-      t->curr = x->sx;
-      return staz_max(t);
-   }
-   y = x->parent;
-   while ( y != NULL && x == y->sx) 
-   {
-      x = y;
-      y = y->parent;
-   }
-   return y;
-}
-
-parcoNode* auto_predecessor(parcoNode* x, parcoTree* t){
-   parcoNode* y;
-   if(x->sx != NULL){
-      t->curr = x->sx;
-      return auto_max(t);
-   }
-   y = x->parent;
-   while ( y != NULL && x == y->sx) 
-   {
-      x = y;
-      y = y->parent;
-   }
-   return y;
-}
-
-
 
 void staz_rot_sx(stazioneTree *T, stazioneNode *x){
-   stazioneNode* y;
-   y = x->dx;
+   stazioneNode* y = x->dx;
    x->dx = y->sx;
-   if(y->sx != T->Tnil){
-      y->sx->parent = x;
+   if(y->sx != T->Tnil) {
+     y->sx->parent = x;
    }
    y->parent = x->parent;
-   if(x->parent == T->Tnil){
-      T->root = y;
+   if(x->parent == T->Tnil) { 
+     T->root = y;
    }
-   else{ 
-      if(x == x->parent->sx){
-         x->parent->sx = y;
-      }else{
-         x->parent->dx = y;
-      }
+   else if(x == x->parent->sx) { 
+     x->parent->sx = y;
+   }
+   else { 
+     x->parent->dx = y;
    }
    y->sx = x;
    x->parent = y;
 }
 
 void parco_rot_sx(parcoTree *T, parcoNode *x){
-   parcoNode* y;
-   y = x->dx;
+   parcoNode* y = x->dx;
    x->dx = y->sx;
-   if(y->sx != T->Tnil){
-      y->sx->parent = x;
-   }
-   y->parent = x->parent;
-   if(x->parent == T->Tnil){
-      T->root = y;
-   }
-   else{ 
-      if(x == x->parent->sx){
-         x->parent->sx = y;
-      }else{
-         x->parent->dx = y;
-      }
-   }
-   y->sx = x;
-   x->parent = y;
+if(y->sx != T->Tnil) {
+  y->sx->parent = x;
+}
+y->parent = x->parent;
+if(x->parent == T->Tnil) { 
+  T->root = y;
+}
+else if(x == x->parent->sx) { 
+  x->parent->sx = y;
+}
+else { 
+  x->parent->dx = y;
+}
+y->sx = x;
+x->parent = y;
 }
 
 void staz_rot_dx(stazioneTree *T, stazioneNode *x){
-   stazioneNode* y;
-   y = x->sx;
+   stazioneNode* y = x->sx;
    x->sx = y->dx;
-   if(y->dx != T->Tnil){
-      y->dx->parent = x;
-   }
-   y->parent = x->parent;
-   if(x->parent == T->Tnil){
-      T->root = y;
-   }
-   else{ 
-      if(x == x->parent->dx){
-         x->parent->dx = y;
-      }else{
-         x->parent->sx = y;
-      }
-   }
-   y->dx = x;
-   x->parent = y;
+if(y->dx != T->Tnil) {
+  y->dx->parent = x;
+}
+y->parent = x->parent;
+if(x->parent == T->Tnil) { 
+  T->root = y;
+}
+else if(x == x->parent->dx) { 
+  x->parent->dx = y;
+}
+else { 
+  x->parent->sx = y;
+}
+y->dx = x;
+x->parent = y;
 }
 
 void parco_rot_dx(parcoTree *T, parcoNode *x){
-   parcoNode* y;
-   y = x->sx;
+   parcoNode* y = x->sx;
    x->sx = y->dx;
-   if(y->dx != T->Tnil){
-      y->dx->parent = x;
-   }
-   y->parent = x->parent;
-   if(x->parent == T->Tnil){
-      T->root = y;
-   }
-   else{ 
-      if(x == x->parent->dx){
-         x->parent->dx = y;
-      }else{
-         x->parent->sx = y;
-      }
-   }
-   y->dx = x;
-   x->parent = y;
+if(y->dx != T->Tnil) {
+  y->dx->parent = x;
+}
+y->parent = x->parent;
+if(x->parent == T->Tnil) { 
+  T->root = y;
+}
+else if(x == x->parent->dx) { 
+  x->parent->dx = y;
+}
+else { 
+  x->parent->sx = y;
+}
+y->dx = x;
+x->parent = y;
 }
 
 void staz_insert_fixup(stazioneTree * T, stazioneNode * z){
@@ -398,13 +353,57 @@ void auto_insert_fixup(parcoTree * T, parcoNode * z){ // sistemare
 
 void staz_insert(stazioneTree* T, stazioneNode* z){
    stazioneNode *y,*x;
+   printf("\nparent nodo da inserire %d", z->parent->distanza);
+   printf("\nsx nodo da inserire %d", z->sx->distanza);
+   printf("\ndx nodo da inserire %d", z->dx->distanza);
    y = T->Tnil;
    x = T->root;
    while( x != T->Tnil){
       y = x;
       if (z->distanza < x->distanza){
          x = x->sx;
+         printf("\nvado a sx da %d e mi ritrovo a %d",y->distanza,x->distanza);
+      }
+      if(z->distanza > x->distanza){
+         printf("\nvado a dx da %d e mi ritrovo a %d",y->distanza,x->distanza);
+         x = x->dx;
+      }
+      if (z->distanza == x->distanza){
+         printf("\nnon aggiunta\n");
+         return;
+      }
+   }
+   z->parent = y;
+   if(y == T->Tnil){
+      T->root = z;
+      printf("\ninserisco radice %d", z->distanza);
+   }else{
+      if(z->distanza < y->distanza){
+         y->sx = z;
+         printf("\n%d diventa figlio sx di %d",z->distanza,y->distanza);
       }else{
+         y->dx = z;
+         printf("\n%d diventa figlio dx di %d",z->distanza,y->distanza);
+      }
+   }
+   z->sx = T->Tnil;
+   z->dx = T->Tnil;
+   z->colore = 1;
+   staz_insert_fixup(T,z);
+   printf("\naggiunta\n");
+}
+
+
+void auto_insert(parcoTree* T, parcoNode* z){
+   parcoNode *y,*x;
+   y = T->Tnil;
+   x = T->root;
+   while( x != T->Tnil){
+      y = x;
+      if (z->autonomia < x->autonomia){
+         x = x->sx;
+      }
+      else{
          x = x->dx;
       }
    }
@@ -412,7 +411,7 @@ void staz_insert(stazioneTree* T, stazioneNode* z){
    if(y == T->Tnil){
       T->root = z;
    }else{
-      if(z->distanza < y->distanza){
+      if(z->autonomia < y->autonomia){
          y->sx = z;
       }else{
          y->dx = z;
@@ -421,12 +420,11 @@ void staz_insert(stazioneTree* T, stazioneNode* z){
    z->sx = T->Tnil;
    z->dx = T->Tnil;
    z->colore = 1;
-   staz_insert_fixup(T,z);
-   //printf("\nstazione inserita");
+   auto_insert_fixup(T,z);
+   //printf(" auto aggiunta");
 }
 
-
-void auto_insert(parcoTree* T, parcoNode* z){
+void auto_insert_post(parcoTree* T, parcoNode* z){
    parcoNode *y,*x;
    y = T->Tnil;
    x = T->root;
@@ -452,55 +450,61 @@ void auto_insert(parcoTree* T, parcoNode* z){
    z->dx = T->Tnil;
    z->colore = 1;
    auto_insert_fixup(T,z);
-   //printf("\nauto con autonomia %d inserita nel parco auto", z->autonomia);
+   printf("aggiunta");
 }
 
 void staz_delete_fixup(stazioneTree *T, stazioneNode *x){
    stazioneNode *w;
    if(x->colore == 1 || x->parent == T->Tnil){
-      x->colore = 0;
-   }else if(x == x->parent->sx){
-      w = x->parent->dx;
-      if(w->colore == 1){
-         w->colore = 0;
-         x->parent->colore = 1;
-         staz_rot_sx(T,x->parent);
+      x->colore = 0; //caso 0
+   }else{ 
+      if(x == x->parent->sx){
          w = x->parent->dx;
-      }
-      if(w->sx->colore == 0 && w->dx->colore == 0){
-         w->colore = 1;
-         staz_delete_fixup(T,x->parent);
-      }else if(w->dx->colore == 0){
-         w->sx->colore = 0;
-         w->colore = 1;
-         staz_rot_dx(T,w);
-         w = x->parent->dx;
-      }
-      w->colore = x->parent->colore;
-      x->parent->colore = 0;
-      w->dx->colore = 0;
-      staz_rot_sx(T,x->parent);
-   }else{
-      w = x->parent->sx;
-      if(w->colore == 1){
-         w->colore = 0;
-         x->parent->colore = 1;
-         staz_rot_dx(T,x->parent);
-         w = x->parent->sx;
-      }
-      if(w->dx->colore == 0 && w->sx->colore == 0){
-         w->colore = 1;
-         staz_delete_fixup(T,x->parent);
-      }else if(w->sx->colore == 0){
+         if(w->colore == 1){
+            w->colore = 0;
+            x->parent->colore = 1;
+            staz_rot_sx(T,x->parent);
+            w = x->parent->dx; //caso 1
+         }
+         if(w->sx->colore == 0 && w->dx->colore == 0){
+            w->colore = 1;
+            staz_delete_fixup(T,x->parent); //caso 2
+         }else{ 
+            if(w->dx->colore == 0){
+               w->sx->colore = 0;
+               w->colore = 1;
+               staz_rot_dx(T,w);
+               w = x->parent->dx; //caso 3
+            }
+         w->colore = x->parent->colore;
+         x->parent->colore = 0;
          w->dx->colore = 0;
-         w->colore = 1;
-         staz_rot_sx(T,w);
+         staz_rot_sx(T,x->parent); //caso 4
+         }
+      }else{
          w = x->parent->sx;
+         if(w->colore == 1){
+            w->colore = 0;
+            x->parent->colore = 1;
+            staz_rot_dx(T,x->parent);
+            w = x->parent->sx;
+         }
+         if(w->dx->colore == 0 && w->sx->colore == 0){
+            w->colore = 1;
+            staz_delete_fixup(T,x->parent);
+         }else{ 
+            if(w->sx->colore == 0){
+               w->dx->colore = 0;
+               w->colore = 1;
+               staz_rot_sx(T,w);
+               w = x->parent->sx;
+            }
+            w->colore = x->parent->colore;
+            x->parent->colore = 0;
+            w->sx->colore = 0;
+            staz_rot_dx(T,x->parent);
+         }
       }
-      w->colore = x->parent->colore;
-      x->parent->colore = 0;
-      w->sx->colore = 0;
-      staz_rot_dx(T,x->parent);
    }
 }
 
@@ -554,6 +558,14 @@ void auto_delete_fixup(parcoTree *T, parcoNode *x){
    }
 }
 
+void delete_auto(parcoNode *nil, parcoNode *x){
+     if(x != nil){
+      delete_auto(nil,x->sx);
+      free(x);
+      //printf("\n%d",x->autonomia);
+      delete_auto(nil,x->dx);
+   }
+}
 
 // return y?
 void staz_delete(stazioneTree *T, stazioneNode *z){
@@ -572,9 +584,7 @@ void staz_delete(stazioneTree *T, stazioneNode *z){
       //printf("\n ok");
       x = y->dx;
    }
-   if(x != T->Tnil){
-      x->parent = y->parent;
-   }
+   x->parent = y->parent;
    if(y->parent == T->Tnil){
       T->root = x;
    }else{
@@ -592,7 +602,9 @@ void staz_delete(stazioneTree *T, stazioneNode *z){
       //printf("\n faccio fixup");
       staz_delete_fixup(T,x);
    }
+   //delete_auto(y->autos->Tnil,y->autos->root);
    free(y);
+   printf("stazione demolita\n");
 }
 
 void auto_delete(parcoTree *T, parcoNode *z){
@@ -611,9 +623,7 @@ void auto_delete(parcoTree *T, parcoNode *z){
       //printf("\n ok");
       x = y->dx;
    }
-   if(x != T->Tnil){
-      x->parent = y->parent;
-   }
+   x->parent = y->parent;
    if(y->parent == T->Tnil){
       T->root = x;
    }else{
@@ -637,20 +647,19 @@ void auto_delete(parcoTree *T, parcoNode *z){
 stazioneNode* crea_stazione( stazioneTree* x ,int dist ){  // memory leak
    struct stazioneNode* newstaz = malloc(sizeof(struct stazioneNode));
    struct parcoTree* newparco = malloc(sizeof(struct parcoTree));
-   newparco->Tnil = malloc(sizeof(struct  parcoNode));
+   newparco->Tnil =  malloc(sizeof(struct  parcoNode));
    newparco->Tnil->colore = 0;
    newparco->Tnil->autonomia = -10;
    newparco->Tnil->dx = newparco->Tnil;
    newparco->Tnil->sx = newparco->Tnil;
    newparco->Tnil->parent = newparco->Tnil;
-   newparco->curr = newparco->Tnil;
    newparco->root = newparco->Tnil;
    newstaz->autos = newparco;
    newstaz->distanza = dist;
    newstaz->parent = x->Tnil;
    newstaz->dx = x->Tnil;
    newstaz->sx = x->Tnil;
-   newstaz->colore = 0;
+   newstaz->colore = 1;
 
    //printf("\nstazione a %d e albero parco auto creati", newstaz->distanza);
    return newstaz;
@@ -662,7 +671,7 @@ parcoNode* crea_auto(parcoTree* x , int auton){
    newauto->dx = x->Tnil;
    newauto->sx = x->Tnil;
    newauto->parent = x->Tnil;
-   newauto->colore = 0;
+   newauto->colore = 1;
    //printf("\nauto creata con autonomia %d", newauto->autonomia);
    return newauto;
 }
@@ -670,13 +679,12 @@ parcoNode* crea_auto(parcoTree* x , int auton){
 stazioneTree* crea_alberoStazioni(){  // errore di segmentazione
 
    struct stazioneTree* newStazTree = malloc(sizeof(struct stazioneTree));
-   newStazTree->Tnil = malloc(sizeof(struct stazioneNode));
-   newStazTree->Tnil->colore = 0;
+   newStazTree->Tnil =  malloc(sizeof(struct stazioneNode));
+   newStazTree->Tnil->colore = 1;
    newStazTree->Tnil->distanza = -10;
    newStazTree->Tnil->dx = newStazTree->Tnil;
    newStazTree->Tnil->sx = newStazTree->Tnil;
    newStazTree->Tnil->parent = newStazTree->Tnil;
-   newStazTree->curr = newStazTree->Tnil;
    newStazTree->root = newStazTree->Tnil;
    return newStazTree;
 }
@@ -700,6 +708,8 @@ void print_auto(parcoNode *nil, parcoNode *x){
 
 
 
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -712,136 +722,127 @@ int main(){
    Stazioni = crea_alberoStazioni();
    stazioneNode* Staz_agg;
    parcoNode* auto_agg;
-
    bool check = false;
    char c = getchar();
-   char *buffer, *comando, *valore;
-   int i=0,counter=0,val,*valoricomando;
-   valoricomando = malloc(sizeof(int));
-
+   char input[5000] , comando[20], buffer[5000];
+   int valori[514], val =0;
+   int i=0 , count=0 , buf=0;
 
    while(c != EOF){
 
-      if(check == false){
-
-      i=0;
-      buffer = malloc(sizeof(char));
-
-      while(c != ' ' && c != '\n'){
+      while(c != '\n'){
+         input[i] = c;
          i++;
-         buffer = realloc(buffer,sizeof(char)*i);
-         buffer[i-1] = c;
-         c=getchar();
-      }
-      comando = malloc(sizeof(char)*(strlen(buffer)-1));
-      strcpy(comando,buffer);
-      free(buffer);
-      check = true;
+         c = getchar();
+      } // salvo una riga di input
+      //printf("\ninput : %s\n",input);
+      i=0;
 
-      }
-      if(check == true){  
+      while( count < strlen(input)){ // passo la riga di input
 
-         if(c == ' '){
-            c=getchar();
-         }
-         i=0;
-         buffer = malloc(sizeof(char));
-
-         while(c != ' ' && c != '\n'){
-            i++;
-            buffer = realloc(buffer,sizeof(char)*i);
-            buffer[i-1] = c;
-            c = getchar();
-         }
-         valore = malloc(sizeof(char)*(strlen(buffer)-1));
-         strcpy(valore,buffer);
-         free(buffer);
-         val = atoi(valore);
-         free(valore);
-         valoricomando = realloc(valoricomando,sizeof(int)*(counter+1));
-         valoricomando[counter] = val;     
-        // printf( " %d",valoricomando[counter]);
-         counter ++;
-      }
-      
+         if(check == false){
+            while(input[count] != ' ' ){
+               comando[count] = input[count];
+               count ++;
+            }
+            //printf("\ncomando :%s ",comando);
 
 
-      // fino  a qui tutto bene, aggiungere free al cambio linea e aggiunte valori nell'albero ||  ho i valori in valoricomando in ordine e il comando in comando
+            while(check == false){
+               count++;
 
-      
-      
+               while(input[count] != ' ' && input[count] != '\0'){
+                  buffer[buf] = input[count];
+                  buf++;
+                  count++;
+               }
 
-      if(c == '\n'){
+               buf=0;
+               val = atoi(buffer);
+               memset(buffer , 0 , sizeof(buffer));
+               valori[i]=val;
+               i++;
 
-         if(strcmp(comando , "aggiungi-stazione") == 0){
-            /*for(int a=0; a<5;a++){
-              printf( "%d ",valoricomando[a]);
+               if(input[count] == '\0'){
+                  check = true;
+               }
+            }
+            /*printf(" valori : ");
+            for(int a=0 ; a<i; a++){
+               
+               printf(" %d",valori[a]);
             }*/
-            int dist = valoricomando[0];
-            int n_auto = valoricomando[1];
+         }
+      }
+      i=0;
+      count=0;
 
-            Staz_agg = crea_stazione(Stazioni,dist);
-            //Staz_agg->autos->Tnil->colore = 0;
+
+      
+      
+     
+      if(c == '\n'){
+         
+         if(strcmp(comando , "aggiungi-stazione") == 0){
+            Staz_agg = crea_stazione(Stazioni,valori[0]);
 
             staz_insert(Stazioni, Staz_agg);
             
-            for(int a=2; a < n_auto+2; a++){
-              auto_agg = crea_auto(Staz_agg->autos, valoricomando[a]);
+            for(int a=2; a < valori[1]+2; a++){
+              auto_agg = crea_auto(Staz_agg->autos, valori[a]);
               auto_insert(Staz_agg->autos , auto_agg);
             }
-      }
-
-
-      if(strcmp(comando , "demolisci-stazione") == 0){
-         printf("AAAAA");
-      }
-
-
-      if(strcmp(comando , "aggiungi-auto") == 0){
-         printf("AAAAA");
-      }
-
-
-      if(strcmp(comando , "rottama-auto") == 0){
-         printf("AAAAA");
-      }
-
-
-      if(strcmp(comando , "pianifica-percorso") == 0){
+            print_staz(Stazioni->Tnil , Stazioni->root);
+         }
 
 
 
-         printf("AAAAA");
-      }
 
-      free(valoricomando);
-      valoricomando = malloc(sizeof(int));
-      //free(comando);
+
+         if(strcmp(comando , "demolisci-stazione") == 0){
+            Staz_agg = staz_search(Stazioni, valori[0]);
+            printf("\ntrovata : %d\n",Staz_agg->distanza);
+            if(Staz_agg == Stazioni->Tnil){
+               printf("non demolita\n");
+            }else{
+               staz_delete(Stazioni , Staz_agg);
+            }
+            print_staz(Stazioni->Tnil , Stazioni->root);
+            
+         }
+         printf("\nradice : %d",Stazioni->root->distanza);
+
+         if(strcmp(comando , "aggiungi-auto") == 0){
+            printf("AAAAA");
+         }
+
+
+         if(strcmp(comando , "rottama-auto") == 0){
+            printf("AAAAA");
+         }
+
+
+         if(strcmp(comando , "pianifica-percorso") == 0){
+            printf("AAAAA");
+         }
+
+
+
+
      
+         
 
 
+      // fino a qui dentro l'if di \n /////////////////////////////////////////
 
-
-      counter=0;
+      }
       check = false;
-
-
-      // fino a qui dentro l'if di \n
-
-      }
-      /*POSTO PER CHIAMATA A FUNZIONI SUGLI ALBERI E FUNZIONI DEL RPOBLEMA
-      
-      DA DEFINIRE              */
-     
-
-    //  free(comando);
-     // free(valoricomando);
-     // counter=0;
-      i=0;
-      // mettere check a true quando becco \n
-      // AGGIUNGERE FREE QUANDO BECCO \n
+      memset(input , 0 , sizeof(input));
+      memset(comando , 0 , sizeof(comando));
+      memset(valori , 0 , sizeof(valori));
+   
       c = getchar();
+      
    }
-   free(valoricomando);
    return 0;
 };
