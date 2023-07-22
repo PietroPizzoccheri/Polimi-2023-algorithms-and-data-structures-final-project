@@ -404,7 +404,7 @@ void auto_insert(parcoTree* T, parcoNode* z){
    printf("\nfiglio destro del nuovo nodo %d e' %d",z->autonomia,z->dx->autonomia);
    z->colore = 1;
    printf("\nparent del nuovo nodo %d e' %d",z->autonomia,z->parent->autonomia);
-   staz_insert_fixup(T,z);
+   auto_insert_fixup(T,z);
    printf("\naggiunta\n");
 }
 
@@ -586,7 +586,7 @@ void staz_delete(stazioneTree *T, stazioneNode *z){
       //printf("\n faccio fixup");
       staz_delete_fixup(T,x);
    }
-   //delete_auto(y->autos->Tnil,y->autos->root);
+   delete_auto(y->autos->Tnil,y->autos->root);
    free(y);
    printf("stazione demolita\n");
 }
