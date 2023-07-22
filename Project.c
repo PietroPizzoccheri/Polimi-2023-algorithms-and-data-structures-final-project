@@ -232,130 +232,101 @@ void staz_insert_fixup(stazioneTree * T, stazioneNode * z){
    stazioneNode* x,*y;
    if(z == T->root){
       T->root->colore = 0;
-      //printf("         root");
    }else{
       x = z->parent; // x è parent di z
       if(x->colore == 1){ // se parent è rosso
-//         printf("      parent rosso");
          if(x == x->parent->sx){  // se x è figlio sinistro
-//            printf("     x è figlio sx");
             y = x->parent->dx;  // y = figlio destro del parent di x
-            if(y->colore == 1){   //se y è rosso
-           //    printf(" caso 1");
+            if(y->colore == 1){   //caso 1
                x->colore = 0;
                y->colore = 0;
                x->parent->colore = 1;
                staz_insert_fixup(T,x->parent);
-            }
-            if(y->colore == 0){ 
-               if(z == x->dx){
-                  //printf(" caso 2");
-                  z = x; // qualcosa di strano qua
+            }else{
+               if(z == x->dx){//caso 2
+                  z = x;
                   staz_rot_sx(T,z);
                   x = z->parent;
+               }
+               x->colore = 0; // caso 3
+               x->parent->colore = 1;
+               staz_rot_dx(T , x->parent);
             }
-         x->colore = 0;
-         x->parent->colore = 1;
-         staz_rot_dx(T, x->parent);
-         //printf("caso  3");
-            }
-         }
-         if(x == x->parent->dx){
-            //printf("x è figlio dx");
+         }else{
             y = x->parent->sx;  // y = figlio sinistro del parent di x
             if(y->colore == 1){   //se y è rosso
-               //printf(" caso 1");
                x->colore = 0;
                y->colore = 0;
                x->parent->colore = 1;
                staz_insert_fixup(T,x->parent);
+            }else{
+               if( z == x->sx){
+                  z = x;
+                  staz_rot_dx(T,z);
+                  x = z->parent;
                }
-               if(y->colore == 0){ 
-                  if(z == x->sx){
-                     //printf(" caso 2");
-                     z = x;
-                     staz_rot_dx(T,z);
-                     x = z->parent;
-                  }
                x->colore = 0;
                x->parent->colore = 1;
-               staz_rot_sx(T, x->parent);
-               //printf("caso  3");
-               }
+               staz_rot_sx(T , x->parent);
             }
          }
       }
    }
+}
 
 
 void auto_insert_fixup(parcoTree * T, parcoNode * z){ // sistemare
    parcoNode* x,*y;
    if(z == T->root){
       T->root->colore = 0;
-      //printf("        root");
    }else{
       x = z->parent; // x è parent di z
       if(x->colore == 1){ // se parent è rosso
-         //printf("      parent rosso");
          if(x == x->parent->sx){  // se x è figlio sinistro
-            //printf("     x è figlio sx");
             y = x->parent->dx;  // y = figlio destro del parent di x
-            if(y->colore == 1){   //se y è rosso
-               //printf(" caso 1");
+            if(y->colore == 1){   //caso 1
                x->colore = 0;
                y->colore = 0;
                x->parent->colore = 1;
                auto_insert_fixup(T,x->parent);
-            }
-            if(y->colore == 0){ 
-               if(z == x->dx){
-
-                  //printf(" caso 2");
-                  z = x; // qualcosa di strano qua
+            }else{
+               if(z == x->dx){//caso 2
+                  z = x;
                   parco_rot_sx(T,z);
                   x = z->parent;
+               }
+               x->colore = 0; // caso 3
+               x->parent->colore = 1;
+               parco_rot_dx(T , x->parent);
             }
-         x->colore = 0;
-         x->parent->colore = 1;
-         parco_rot_dx(T, x->parent);
-         //printf("caso  3");
-            }
-         }
-         if(x == x->parent->dx){
-            //printf("x è figlio dx");
+         }else{
             y = x->parent->sx;  // y = figlio sinistro del parent di x
             if(y->colore == 1){   //se y è rosso
-               //printf(" caso 1");
                x->colore = 0;
                y->colore = 0;
                x->parent->colore = 1;
                auto_insert_fixup(T,x->parent);
+            }else{
+               if( z == x->sx){
+                  z = x;
+                  parco_rot_dx(T,z);
+                  x = z->parent;
                }
-               if(y->colore == 0){ 
-                  if(z == x->sx){
-
-                     //printf(" caso 2");
-                     z = x;
-                     parco_rot_dx(T,z);
-                     x = z->parent;
-
-
-                  }
                x->colore = 0;
                x->parent->colore = 1;
-               parco_rot_sx(T, x->parent);
-               //printf("caso  3");
-               }
+               parco_rot_sx(T , x->parent);
             }
          }
       }
+   }
 }
 
 void staz_insert(stazioneTree* T, stazioneNode* z){
    stazioneNode *y,*x;
-   printf("\nparent nodo da inserire %d", z->parent->distanza);
-   printf("\nsx nodo da inserire %d", z->sx->distanza);
-   printf("\ndx nodo da inserire %d", z->dx->distanza);
+   printf("\nnodo da inserire %d", z->distanza);
+   //printf("\nparent nodo da inserire %d", z->parent->distanza);
+   //printf("\nsx nodo da inserire %d", z->sx->distanza);
+   //printf("\ndx nodo da inserire %d", z->dx->distanza);
    y = T->Tnil;
    x = T->root;
    while( x != T->Tnil){
@@ -363,10 +334,9 @@ void staz_insert(stazioneTree* T, stazioneNode* z){
       if (z->distanza < x->distanza){
          x = x->sx;
          printf("\nvado a sx da %d e mi ritrovo a %d",y->distanza,x->distanza);
-      }
-      if(z->distanza > x->distanza){
-         printf("\nvado a dx da %d e mi ritrovo a %d",y->distanza,x->distanza);
+      }else{
          x = x->dx;
+         printf("\nvado a dx da %d e mi ritrovo a %d",y->distanza,x->distanza);
       }
       if (z->distanza == x->distanza){
          printf("\nnon aggiunta\n");
@@ -387,8 +357,11 @@ void staz_insert(stazioneTree* T, stazioneNode* z){
       }
    }
    z->sx = T->Tnil;
+   printf("\nfiglio sinistro del nuovo nodo %d e' %d",z->distanza,z->sx->distanza);
    z->dx = T->Tnil;
+   printf("\nfiglio destro del nuovo nodo %d e' %d",z->distanza,z->dx->distanza);
    z->colore = 1;
+   printf("\nparent del nuovo nodo %d e' %d",z->distanza,z->parent->distanza);
    staz_insert_fixup(T,z);
    printf("\naggiunta\n");
 }
@@ -396,32 +369,43 @@ void staz_insert(stazioneTree* T, stazioneNode* z){
 
 void auto_insert(parcoTree* T, parcoNode* z){
    parcoNode *y,*x;
+   printf("\nnodo da inserire %d", z->autonomia);
+   //printf("\nparent nodo da inserire %d", z->parent->autonomia);
+   //printf("\nsx nodo da inserire %d", z->sx->autonomia);
+   //printf("\ndx nodo da inserire %d", z->dx->autonomia);
    y = T->Tnil;
    x = T->root;
    while( x != T->Tnil){
       y = x;
       if (z->autonomia < x->autonomia){
          x = x->sx;
-      }
-      else{
+         printf("\nvado a sx da %d e mi ritrovo a %d",y->autonomia,x->autonomia);
+      }else{
          x = x->dx;
+         printf("\nvado a dx da %d e mi ritrovo a %d",y->autonomia,x->autonomia);
       }
    }
    z->parent = y;
    if(y == T->Tnil){
       T->root = z;
+      printf("\ninserisco radice %d", z->autonomia);
    }else{
       if(z->autonomia < y->autonomia){
          y->sx = z;
+         printf("\n%d diventa figlio sx di %d",z->autonomia,y->autonomia);
       }else{
          y->dx = z;
+         printf("\n%d diventa figlio dx di %d",z->autonomia,y->autonomia);
       }
    }
    z->sx = T->Tnil;
+   printf("\nfiglio sinistro del nuovo nodo %d e' %d",z->autonomia,z->sx->autonomia);
    z->dx = T->Tnil;
+   printf("\nfiglio destro del nuovo nodo %d e' %d",z->autonomia,z->dx->autonomia);
    z->colore = 1;
-   auto_insert_fixup(T,z);
-   //printf(" auto aggiunta");
+   printf("\nparent del nuovo nodo %d e' %d",z->autonomia,z->parent->autonomia);
+   staz_insert_fixup(T,z);
+   printf("\naggiunta\n");
 }
 
 void auto_insert_post(parcoTree* T, parcoNode* z){
@@ -810,7 +794,7 @@ int main(){
             print_staz(Stazioni->Tnil , Stazioni->root);
             
          }
-         printf("\nradice : %d",Stazioni->root->distanza);
+         printf("\nradice : %d\n\n",Stazioni->root->distanza);
 
          if(strcmp(comando , "aggiungi-auto") == 0){
             printf("AAAAA");
