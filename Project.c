@@ -1,21 +1,12 @@
 //Prova finale API PIZZOCCHERI 10797420
 
 // librerie di libc
-#include <assert.h>
-#include <ctype.h>
-#include <errno.h>
-#include <float.h>
-#include <iso646.h>
-#include <limits.h>
-#include <math.h>
-#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
 // strutture dati 
-
+long contatore=0;
 typedef enum {false,true} bool;
 
 //typedef enum {r,b} colore_nodo;
@@ -55,19 +46,19 @@ stazioneNode* staz_search(stazioneTree* albero, int dist){
 
    while(x != albero->Tnil){
       if(x->distanza == dist){
-         printf("\n returno x");
+         //printf("\n returno x");
          return x;
          //printf("\nqualcosa non va");
       }
       if(dist < x->distanza){
-         printf("\nvado a sx\n");
+         //printf("\nvado a sx\n");
          x = x->sx;
-         printf("\ntrovo %d",x->distanza);
+         //printf("\ntrovo %d",x->distanza);
       }
       if(dist > x->distanza){
-         printf("\nvado a dx da %d\n", x->distanza);
+         //printf("\nvado a dx da %d\n", x->distanza);
          x = x->dx;
-         printf("\ntrovo %d",x->distanza);
+         //printf("\ntrovo %d",x->distanza);
       }
       //printf("\nesco dagli if");
    }
@@ -323,7 +314,7 @@ void auto_insert_fixup(parcoTree * T, parcoNode * z){ // sistemare
 
 void staz_insert(stazioneTree* T, stazioneNode* z){
    stazioneNode *y,*x;
-   printf("\nnodo da inserire %d", z->distanza);
+   //printf("\nnodo da inserire %d", z->distanza);
    //printf("\nparent nodo da inserire %d", z->parent->distanza);
    //printf("\nsx nodo da inserire %d", z->sx->distanza);
    //printf("\ndx nodo da inserire %d", z->dx->distanza);
@@ -333,35 +324,35 @@ void staz_insert(stazioneTree* T, stazioneNode* z){
       y = x;
       if (z->distanza < x->distanza){
          x = x->sx;
-         printf("\nvado a sx da %d e mi ritrovo a %d",y->distanza,x->distanza);
+         //printf("\nvado a sx da %d e mi ritrovo a %d",y->distanza,x->distanza);
       }else{
          x = x->dx;
-         printf("\nvado a dx da %d e mi ritrovo a %d",y->distanza,x->distanza);
+         //printf("\nvado a dx da %d e mi ritrovo a %d",y->distanza,x->distanza);
       }
       if (z->distanza == x->distanza){
-         printf("\nnon aggiunta\n");
+         //printf("\nnon aggiunta\n");
          return;
       }
    }
    z->parent = y;
    if(y == T->Tnil){
       T->root = z;
-      printf("\ninserisco radice %d", z->distanza);
+      //printf("\ninserisco radice %d", z->distanza);
    }else{
       if(z->distanza < y->distanza){
          y->sx = z;
-         printf("\n%d diventa figlio sx di %d",z->distanza,y->distanza);
+         //printf("\n%d diventa figlio sx di %d",z->distanza,y->distanza);
       }else{
          y->dx = z;
-         printf("\n%d diventa figlio dx di %d",z->distanza,y->distanza);
+         //printf("\n%d diventa figlio dx di %d",z->distanza,y->distanza);
       }
    }
    z->sx = T->Tnil;
-   printf("\nfiglio sinistro del nuovo nodo %d e' %d",z->distanza,z->sx->distanza);
+   //printf("\nfiglio sinistro del nuovo nodo %d e' %d",z->distanza,z->sx->distanza);
    z->dx = T->Tnil;
-   printf("\nfiglio destro del nuovo nodo %d e' %d",z->distanza,z->dx->distanza);
+   //printf("\nfiglio destro del nuovo nodo %d e' %d",z->distanza,z->dx->distanza);
    z->colore = 1;
-   printf("\nparent del nuovo nodo %d e' %d",z->distanza,z->parent->distanza);
+   //printf("\nparent del nuovo nodo %d e' %d",z->distanza,z->parent->distanza);
    staz_insert_fixup(T,z);
    printf("\naggiunta\n");
 }
@@ -369,7 +360,7 @@ void staz_insert(stazioneTree* T, stazioneNode* z){
 
 void auto_insert(parcoTree* T, parcoNode* z){
    parcoNode *y,*x;
-   printf("\nnodo da inserire %d", z->autonomia);
+   //printf("\nnodo da inserire %d", z->autonomia);
    //printf("\nparent nodo da inserire %d", z->parent->autonomia);
    //printf("\nsx nodo da inserire %d", z->sx->autonomia);
    //printf("\ndx nodo da inserire %d", z->dx->autonomia);
@@ -379,62 +370,33 @@ void auto_insert(parcoTree* T, parcoNode* z){
       y = x;
       if (z->autonomia < x->autonomia){
          x = x->sx;
-         printf("\nvado a sx da %d e mi ritrovo a %d",y->autonomia,x->autonomia);
+         //printf("\nvado a sx da %d e mi ritrovo a %d",y->autonomia,x->autonomia);
       }else{
          x = x->dx;
-         printf("\nvado a dx da %d e mi ritrovo a %d",y->autonomia,x->autonomia);
+         //printf("\nvado a dx da %d e mi ritrovo a %d",y->autonomia,x->autonomia);
       }
    }
    z->parent = y;
    if(y == T->Tnil){
       T->root = z;
-      printf("\ninserisco radice %d", z->autonomia);
+      //printf("\ninserisco radice %d", z->autonomia);
    }else{
       if(z->autonomia < y->autonomia){
          y->sx = z;
-         printf("\n%d diventa figlio sx di %d",z->autonomia,y->autonomia);
+         //printf("\n%d diventa figlio sx di %d",z->autonomia,y->autonomia);
       }else{
          y->dx = z;
-         printf("\n%d diventa figlio dx di %d",z->autonomia,y->autonomia);
+         //printf("\n%d diventa figlio dx di %d",z->autonomia,y->autonomia);
       }
    }
    z->sx = T->Tnil;
-   printf("\nfiglio sinistro del nuovo nodo %d e' %d",z->autonomia,z->sx->autonomia);
+   //printf("\nfiglio sinistro del nuovo nodo %d e' %d",z->autonomia,z->sx->autonomia);
    z->dx = T->Tnil;
-   printf("\nfiglio destro del nuovo nodo %d e' %d",z->autonomia,z->dx->autonomia);
+   //printf("\nfiglio destro del nuovo nodo %d e' %d",z->autonomia,z->dx->autonomia);
    z->colore = 1;
-   printf("\nparent del nuovo nodo %d e' %d",z->autonomia,z->parent->autonomia);
+   //printf("\nparent del nuovo nodo %d e' %d",z->autonomia,z->parent->autonomia);
    auto_insert_fixup(T,z);
-   printf("\naggiunta\n");
-}
-
-void auto_insert_post(parcoTree* T, parcoNode* z){
-   parcoNode *y,*x;
-   y = T->Tnil;
-   x = T->root;
-   while( x != T->Tnil){
-      y = x;
-      if (z->autonomia < x->autonomia){
-         x = x->sx;
-      }else{
-         x = x->dx;
-      }
-   }
-   z->parent = y;
-   if(y == T->Tnil){
-      T->root = z;
-   }else{
-      if(z->autonomia < y->autonomia){
-         y->sx = z;
-      }else{
-         y->dx = z;
-      }
-   }
-   z->sx = T->Tnil;
-   z->dx = T->Tnil;
-   z->colore = 1;
-   auto_insert_fixup(T,z);
-   printf("aggiunta");
+   //printf("\naggiunta\n");
 }
 
 void staz_delete_fixup(stazioneTree *T, stazioneNode *x){
@@ -580,8 +542,9 @@ void staz_delete(stazioneTree *T, stazioneNode *z){
    else{
       //printf("\n ok");
       x = y->dx;
+   }if(x != T->Tnil){
+      x->parent = y->parent;
    }
-   x->parent = y->parent;
    if(y->parent == T->Tnil){
       T->root = x;
    }else{
@@ -604,6 +567,8 @@ void staz_delete(stazioneTree *T, stazioneNode *z){
    free(y->autos->Tnil);
    free(y->autos);
    free(y);
+   contatore = contatore - 3;
+   printf("\nstazione rimossa leaks : %li",contatore);
 }
 
 void auto_delete(parcoTree *T, parcoNode *z){
@@ -621,8 +586,9 @@ void auto_delete(parcoTree *T, parcoNode *z){
    else{
       //printf("\n ok");
       x = y->dx;
+   }if(x != T->Tnil){
+      x->parent = y->parent;
    }
-   x->parent = y->parent;
    if(y->parent == T->Tnil){
       T->root = x;
    }else{
@@ -641,6 +607,8 @@ void auto_delete(parcoTree *T, parcoNode *z){
       auto_delete_fixup(T,x);
    }
    free(y);
+   contatore = contatore - 1;
+   printf("\nauto rimossa leaks : %li",contatore);
 }
 
 
@@ -652,6 +620,8 @@ stazioneNode* crea_stazione( stazioneTree* x ,int dist ){  // memory leak
    struct stazioneNode* newstaz = malloc(sizeof(struct stazioneNode));
    struct parcoTree* newparco = malloc(sizeof(struct parcoTree));
    newparco->Tnil =  malloc(sizeof(struct  parcoNode));
+   contatore = contatore + 3;
+   printf("\naggiungo stazione leaks : %li",contatore);
    newparco->Tnil->colore = 0;
    newparco->Tnil->autonomia = -10;
    newparco->Tnil->dx = newparco->Tnil;
@@ -671,6 +641,8 @@ stazioneNode* crea_stazione( stazioneTree* x ,int dist ){  // memory leak
 
 parcoNode* crea_auto(parcoTree* x , int auton){
    struct parcoNode * newauto = malloc(sizeof(struct parcoNode));
+   contatore = contatore + 1;
+   printf("\naggiungo auto leaks : %li",contatore);
    newauto->autonomia = auton;
    newauto->dx = x->Tnil;
    newauto->sx = x->Tnil;
@@ -684,6 +656,8 @@ stazioneTree* crea_alberoStazioni(){  // errore di segmentazione
 
    struct stazioneTree* newStazTree = malloc(sizeof(struct stazioneTree));
    newStazTree->Tnil =  malloc(sizeof(struct stazioneNode));
+   contatore = contatore + 2;
+   printf("\naggiungo albero staz leaks : %li : \n",contatore);
    newStazTree->Tnil->colore = 1;
    newStazTree->Tnil->distanza = -10;
    newStazTree->Tnil->dx = newStazTree->Tnil;
@@ -796,7 +770,7 @@ int main(){
               auto_agg = crea_auto(Staz_agg->autos, valori[a]);
               auto_insert(Staz_agg->autos , auto_agg);
             }
-            print_staz(Stazioni->Tnil , Stazioni->root);
+            //print_staz(Stazioni->Tnil , Stazioni->root);
          }
 
 
@@ -811,20 +785,35 @@ int main(){
             }else{
                staz_delete(Stazioni , Staz_agg);
             }
-            print_staz(Stazioni->Tnil , Stazioni->root);
+            //print_staz(Stazioni->Tnil , Stazioni->root);
             
          }
-         printf("\nradice : %d",Stazioni->root->distanza);
-         printf("\nradice sx: %d",Stazioni->root->sx->distanza);
-         printf("\nradice  dx: %d\n\n",Stazioni->root->dx->distanza);
+         //printf("\nradice : %d",Stazioni->root->distanza);
+         //printf("\nradice sx: %d",Stazioni->root->sx->distanza);
+         //printf("\nradice  dx: %d\n\n",Stazioni->root->dx->distanza);
+         
 
          if(strcmp(comando , "aggiungi-auto") == 0){
-            printf("AAAAA");
+            Staz_agg = staz_search(Stazioni, valori[0]);
+            if(Staz_agg == Stazioni->Tnil){
+               printf("non aggiunta\n");
+            }else{
+               auto_agg = crea_auto(Staz_agg->autos , valori[1]);
+               auto_insert(Staz_agg->autos , auto_agg);
+               printf("aggiunta\n");
+            }
          }
 
 
          if(strcmp(comando , "rottama-auto") == 0){
-            printf("AAAAA");
+            Staz_agg = staz_search(Stazioni, valori[0]);
+            if(Staz_agg == Stazioni->Tnil){
+               printf("non rottamata\n");
+            }else{
+               auto_agg = crea_auto(Staz_agg->autos , valori[1]);
+               auto_delete(Staz_agg->autos , auto_agg);
+               printf("tottamata\n");
+            }
          }
 
 
@@ -850,9 +839,11 @@ int main(){
       c = getchar();
       
    }
-
-   delete_staz(Stazioni , Stazioni->root);  // QUESTO VA FATTO FUNZIONARE
+   print_staz(Stazioni->Tnil,Stazioni->root);
+   delete_staz(Stazioni , Stazioni->root);   // problema utilizzo memoria non sta qui
    free(Stazioni->Tnil);
    free(Stazioni);
+   contatore = contatore - 2;
+   printf("\nalbero rimosso leaks : %li",contatore);
    return 0;
 };
