@@ -541,17 +541,30 @@ void auto_delete_fixup(parcoTree *T, parcoNode *x){
       parco_rot_dx(T,x->parent);
    }
 }
+void staz_delete(stazioneTree *T, stazioneNode *z);
+void auto_delete(parcoTree *T, parcoNode *z);
 
-void delete_auto(parcoNode *nil, parcoNode *x){
-     if(x != nil){
-      delete_auto(nil,x->sx);
-      free(x);
-      //printf("\n%d",x->autonomia);
-      delete_auto(nil,x->dx);
+
+void delete_auto(parcoTree *T, parcoNode *x){ // problemi qua
+     if(x == T->Tnil){
+      return;
+   }else{
+      delete_auto(T,x->sx); 
+      delete_auto(T,x->dx);
+      auto_delete(T,x);
    }
 }
 
-// return y?
+void delete_staz(stazioneTree *T, stazioneNode *x){ // problemi qua
+     if(x == T->Tnil){
+      return;
+   }else{
+      delete_staz(T,x->sx);
+      delete_staz(T,x->dx);
+      staz_delete(T,x);
+   }
+}
+
 void staz_delete(stazioneTree *T, stazioneNode *z){
    stazioneNode *y,*x;
    if(z->sx == T->Tnil || z->dx == T->Tnil){
@@ -586,9 +599,11 @@ void staz_delete(stazioneTree *T, stazioneNode *z){
       //printf("\n faccio fixup");
       staz_delete_fixup(T,x);
    }
-   delete_auto(y->autos->Tnil,y->autos->root);
+   printf("stazione %d demolita\n",y->distanza);
+   delete_auto(y->autos ,y->autos->root);
+   free(y->autos->Tnil);
+   free(y->autos);
    free(y);
-   printf("stazione demolita\n");
 }
 
 void auto_delete(parcoTree *T, parcoNode *z){
@@ -627,6 +642,11 @@ void auto_delete(parcoTree *T, parcoNode *z){
    }
    free(y);
 }
+
+
+
+// return y?
+
 
 stazioneNode* crea_stazione( stazioneTree* x ,int dist ){  // memory leak
    struct stazioneNode* newstaz = malloc(sizeof(struct stazioneNode));
@@ -794,7 +814,9 @@ int main(){
             print_staz(Stazioni->Tnil , Stazioni->root);
             
          }
-         printf("\nradice : %d\n\n",Stazioni->root->distanza);
+         printf("\nradice : %d",Stazioni->root->distanza);
+         printf("\nradice sx: %d",Stazioni->root->sx->distanza);
+         printf("\nradice  dx: %d\n\n",Stazioni->root->dx->distanza);
 
          if(strcmp(comando , "aggiungi-auto") == 0){
             printf("AAAAA");
@@ -828,5 +850,9 @@ int main(){
       c = getchar();
       
    }
+
+   delete_staz(Stazioni , Stazioni->root);  // QUESTO VA FATTO FUNZIONARE
+   free(Stazioni->Tnil);
+   free(Stazioni);
    return 0;
 };
