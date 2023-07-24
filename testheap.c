@@ -12,6 +12,40 @@ typedef enum {false,true} bool;
 //typedef enum {r,b} colore_nodo;
 // 0 = black
 // 1 = red
+/*
+void stampa_array(int a[], int n) {
+  int i;
+  for (i=0; i<n; i++) {
+    printf("%d ", a[i]);
+  }
+  printf("\n");
+  return;
+}*/
+
+void quicksort(int a[],int primo,int ultimo){
+   int i, j, pivot, temp;
+   if(primo<ultimo){
+      pivot=primo;
+      i=primo;
+      j=ultimo;     
+      while(i<j){
+         while(a[i]<=a[pivot]&&i<ultimo)
+            i++;
+         while(a[j]>a[pivot])
+            j--;
+         if(i<j){   
+            temp=a[i];
+            a[i]=a[j];
+            a[j]=temp;
+         }
+      }
+      temp=a[pivot];
+      a[pivot]=a[j];
+      a[j]=temp;
+      quicksort(a,primo,j-1);
+      quicksort(a,j+1,ultimo);
+   }
+}
 
 // nodo auto
 
@@ -19,7 +53,8 @@ typedef enum {false,true} bool;
 typedef struct stazioneNode
 {
     int colore;
-    int distanza;
+    int distanza, auto_presenti;
+    int parco_auto[512];
     struct stazioneNode *sx, *dx, *parent;
 } stazioneNode;
 
@@ -216,7 +251,7 @@ void staz_insert(stazioneTree* T, stazioneNode* z){
    z->colore = 1;
    //printf("\nparent del nuovo nodo %d e' %d",z->distanza,z->parent->distanza);
    staz_insert_fixup(T,z);
-   printf("\naggiunta\n");
+   //printf("\naggiunta\n");
 }
 
 
@@ -287,6 +322,7 @@ void delete_staz(stazioneTree *T, stazioneNode *x){ // problemi qua
       delete_staz(T,x->sx);
       delete_staz(T,x->dx);
       staz_delete(T,x);
+      //printf("debug");
    }
 }
 
@@ -325,11 +361,10 @@ void staz_delete(stazioneTree *T, stazioneNode *z){
       //printf("\n faccio fixup");
       staz_delete_fixup(T,x);
    }
-   printf("stazione %d demolita\n",y->distanza);
-   
+   //printf("stazione %d demolita\n",y->distanza);
    free(y);
-   contatore = contatore - 3;
-   printf("\nstazione rimossa leaks : %li",contatore);
+   contatore = contatore - 1;
+   //printf("\nstazione rimossa leaks : %li",contatore);
 }
 
 
@@ -338,8 +373,8 @@ void staz_delete(stazioneTree *T, stazioneNode *z){
 
 stazioneNode* crea_stazione( stazioneTree* x ,int dist ){  // memory leak
    struct stazioneNode* newstaz = malloc(sizeof(struct stazioneNode));
-   contatore = contatore + 3;
-   printf("\naggiungo stazione leaks : %li",contatore);
+   contatore = contatore + 1;
+   //printf("\naggiungo stazione di dimensioni %ld leaks : %li",sizeof(*newstaz),contatore);
    newstaz->distanza = dist;
    newstaz->parent = x->Tnil;
    newstaz->dx = x->Tnil;
@@ -357,7 +392,7 @@ stazioneTree* crea_alberoStazioni(){  // errore di segmentazione
    struct stazioneTree* newStazTree = malloc(sizeof(struct stazioneTree));
    newStazTree->Tnil =  malloc(sizeof(struct stazioneNode));
    contatore = contatore + 2;
-   printf("\naggiungo albero staz leaks : %li : \n",contatore);
+   //printf("\naggiungo albero di dimensioni %ld staz leaks : %li : \n",sizeof(*newStazTree),contatore);
    newStazTree->Tnil->colore = 1;
    newStazTree->Tnil->distanza = -10;
    newStazTree->Tnil->dx = newStazTree->Tnil;
@@ -394,8 +429,8 @@ int main(){
    stazioneNode* Staz_agg;
    bool check = false;
    char c = getchar();
-   char input[5000] , comando[20], buffer[5000];
-   int valori[514], val =0;
+   char input[10000] , comando[20], buffer[5000];
+   int valori[514], val =0 ,contaauto =0;
    int i=0 , count=0 , buf=0;
 
    while(c != EOF){
@@ -454,14 +489,25 @@ int main(){
       if(c == '\n'){
          
          if(strcmp(comando , "aggiungi-stazione") == 0){
-            Staz_agg = crea_stazione(Stazioni,valori[0]);
-
-            staz_insert(Stazioni, Staz_agg);
-            
-            for(int a=2; a < valori[1]+2; a++){
-              
+            Staz_agg = staz_search(Stazioni , valori[0]);
+            if( Staz_agg == Stazioni->Tnil){
+               Staz_agg = crea_stazione(Stazioni,valori[0]);
+               staz_insert(Stazioni, Staz_agg);
+               contaauto = 0;
+               for( int x=2; x < valori[1]+2 ; x++){
+                  Staz_agg->parco_auto[contaauto] = valori[x];
+                  contaauto++;
+               }
+               Staz_agg->auto_presenti = contaauto;
+               contaauto = 0;
+               quicksort(Staz_agg->parco_auto , 0 , Staz_agg->auto_presenti-1);
+               /*for(int a=0; a < Staz_agg->auto_presenti; a++){
+                 printf(" %d",Staz_agg->parco_auto[a]);
+               }*/
+               printf("aggiunta\n");
+            }else{
+               printf("non aggiunra\n");
             }
-            //print_staz(Stazioni->Tnil , Stazioni->root);
          }
 
 
@@ -475,6 +521,7 @@ int main(){
                printf("non demolita\n");
             }else{
                staz_delete(Stazioni , Staz_agg);
+               printf("demolita\n");
             }
             //print_staz(Stazioni->Tnil , Stazioni->root);
             
@@ -491,7 +538,7 @@ int main(){
             }else{
                
                
-               printf("aggiunta\n");
+               //printf("aggiunta\n");
             }
          }
 
@@ -501,9 +548,11 @@ int main(){
             if(Staz_agg == Stazioni->Tnil){
                printf("non rottamata\n");
             }else{
+               for(int a =0 ; a < Staz_agg->auto_presenti ; a++){
+                  
+               }
                
-               
-               printf("tottamata\n");
+               //printf("rottamata\n");
             }
          }
 
@@ -530,11 +579,13 @@ int main(){
       c = getchar();
       
    }
-   print_staz(Stazioni->Tnil,Stazioni->root);
+   //print_staz(Stazioni->Tnil,Stazioni->root);
    delete_staz(Stazioni , Stazioni->root);   // problema utilizzo memoria non sta qui
+   //print_staz(Stazioni->Tnil,Stazioni->root);
    free(Stazioni->Tnil);
    free(Stazioni);
    contatore = contatore - 2;
-   printf("\nalbero rimosso leaks : %li",contatore);
+   //printf("\nalbero rimosso leaks : %li",contatore);
+   printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
    return 0;
 };
