@@ -143,21 +143,21 @@ void staz_rot_sx(stazioneTree *T, stazioneNode *x){
 void staz_rot_dx(stazioneTree *T, stazioneNode *x){
    stazioneNode* y = x->sx;
    x->sx = y->dx;
-if(y->dx != T->Tnil) {
-  y->dx->parent = x;
-}
-y->parent = x->parent;
-if(x->parent == T->Tnil) { 
-  T->root = y;
-}
-else if(x == x->parent->dx) { 
-  x->parent->dx = y;
-}
-else { 
-  x->parent->sx = y;
-}
-y->dx = x;
-x->parent = y;
+   if(y->dx != T->Tnil) {
+     y->dx->parent = x;
+   }
+   y->parent = x->parent;
+   if(x->parent == T->Tnil) { 
+      T->root = y;
+   }
+   else if(x == x->parent->dx) { 
+      x->parent->dx = y;
+   }
+   else { 
+      x->parent->sx = y;
+   }
+   y->dx = x;
+   x->parent = y;
 }
 
 
@@ -501,12 +501,9 @@ int main(){
                Staz_agg->auto_presenti = contaauto;
                contaauto = 0;
                quicksort(Staz_agg->parco_auto , 0 , Staz_agg->auto_presenti-1);
-               /*for(int a=0; a < Staz_agg->auto_presenti; a++){
-                 printf(" %d",Staz_agg->parco_auto[a]);
-               }*/
                printf("aggiunta\n");
             }else{
-               printf("non aggiunra\n");
+               printf("non aggiunta\n");
             }
          }
 
@@ -516,19 +513,15 @@ int main(){
 
          if(strcmp(comando , "demolisci-stazione") == 0){
             Staz_agg = staz_search(Stazioni, valori[0]);
-            printf("\ntrovata : %d\n",Staz_agg->distanza);
+            //printf("\ntrovata : %d\n",Staz_agg->distanza);
             if(Staz_agg == Stazioni->Tnil){
                printf("non demolita\n");
             }else{
                staz_delete(Stazioni , Staz_agg);
                printf("demolita\n");
             }
-            //print_staz(Stazioni->Tnil , Stazioni->root);
             
          }
-         //printf("\nradice : %d",Stazioni->root->distanza);
-         //printf("\nradice sx: %d",Stazioni->root->sx->distanza);
-         //printf("\nradice  dx: %d\n\n",Stazioni->root->dx->distanza);
          
 
          if(strcmp(comando , "aggiungi-auto") == 0){
@@ -536,9 +529,10 @@ int main(){
             if(Staz_agg == Stazioni->Tnil){
                printf("non aggiunta\n");
             }else{
-               
-               
-               //printf("aggiunta\n");
+               Staz_agg->parco_auto[Staz_agg->auto_presenti] = valori[1];
+               Staz_agg->auto_presenti = Staz_agg->auto_presenti + 1;
+               quicksort(Staz_agg->parco_auto , 0 , Staz_agg->auto_presenti-1);
+               printf("aggiunta\n");
             }
          }
 
@@ -549,16 +543,21 @@ int main(){
                printf("non rottamata\n");
             }else{
                for(int a =0 ; a < Staz_agg->auto_presenti ; a++){
-                  
+                  if(valori[1] == Staz_agg->parco_auto[a]){
+                     Staz_agg->parco_auto[a] = 0;
+                     quicksort(Staz_agg->parco_auto , 0 , Staz_agg->auto_presenti-1);
+                     Staz_agg->auto_presenti = Staz_agg->auto_presenti - 1;
+                     printf("rottamata\n");
+                     break;
+                  }
                }
-               
-               //printf("rottamata\n");
+               // AGGIUNGERE NON ROTTAMATA SE NON TROVATA IN ARRAY
             }
          }
 
 
          if(strcmp(comando , "pianifica-percorso") == 0){
-            printf("AAAAA");
+            printf("AAAAA\n");
          }
 
 
@@ -579,13 +578,10 @@ int main(){
       c = getchar();
       
    }
-   //print_staz(Stazioni->Tnil,Stazioni->root);
    delete_staz(Stazioni , Stazioni->root);   // problema utilizzo memoria non sta qui
-   //print_staz(Stazioni->Tnil,Stazioni->root);
    free(Stazioni->Tnil);
    free(Stazioni);
    contatore = contatore - 2;
-   //printf("\nalbero rimosso leaks : %li",contatore);
-   printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+   //printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
    return 0;
 };
