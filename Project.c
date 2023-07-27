@@ -6,21 +6,13 @@
 #include <string.h>
 
 // strutture dati 
-long contatore=0;
+//long contatore=0;
 typedef enum {false,true} bool;
 
 //typedef enum {r,b} colore_nodo;
 // 0 = black
 // 1 = red
-/*
-void stampa_array(int a[], int n) {
-  int i;
-  for (i=0; i<n; i++) {
-    printf("%d ", a[i]);
-  }
-  printf("\n");
-  return;
-}*/
+bool found = false;
 
 void quicksort(int a[],int primo,int ultimo){
    int i, j, pivot, temp;
@@ -54,7 +46,7 @@ typedef struct stazioneNode
 {
     int colore;
     int distanza, auto_presenti;
-    int parco_auto[512];
+    int parco_auto[700];
     struct stazioneNode *sx, *dx, *parent;
 } stazioneNode;
 
@@ -363,7 +355,7 @@ void staz_delete(stazioneTree *T, stazioneNode *z){
    }
    //printf("stazione %d demolita\n",y->distanza);
    free(y);
-   contatore = contatore - 1;
+   //contatore = contatore - 1;
    //printf("\nstazione rimossa leaks : %li",contatore);
 }
 
@@ -373,13 +365,17 @@ void staz_delete(stazioneTree *T, stazioneNode *z){
 
 stazioneNode* crea_stazione( stazioneTree* x ,int dist ){  // memory leak
    struct stazioneNode* newstaz = malloc(sizeof(struct stazioneNode));
-   contatore = contatore + 1;
+   //contatore = contatore + 1;
    //printf("\naggiungo stazione di dimensioni %ld leaks : %li",sizeof(*newstaz),contatore);
    newstaz->distanza = dist;
    newstaz->parent = x->Tnil;
    newstaz->dx = x->Tnil;
    newstaz->sx = x->Tnil;
    newstaz->colore = 1;
+   newstaz->auto_presenti = 0;
+   for( int a = 0 ; a<700 ; a++){
+      newstaz->parco_auto[a] = -1;
+   }
 
    //printf("\nstazione a %d e albero parco auto creati", newstaz->distanza);
    return newstaz;
@@ -391,7 +387,7 @@ stazioneTree* crea_alberoStazioni(){  // errore di segmentazione
 
    struct stazioneTree* newStazTree = malloc(sizeof(struct stazioneTree));
    newStazTree->Tnil =  malloc(sizeof(struct stazioneNode));
-   contatore = contatore + 2;
+   //contatore = contatore + 2;
    //printf("\naggiungo albero di dimensioni %ld staz leaks : %li : \n",sizeof(*newStazTree),contatore);
    newStazTree->Tnil->colore = 1;
    newStazTree->Tnil->distanza = -10;
@@ -412,8 +408,179 @@ void print_staz(stazioneNode *nil,stazioneNode *x){
 }
 
 
+int pianifica_cresc(stazioneNode *inizio , stazioneNode *fine , stazioneTree * albero){
+            int autonomia = inizio->parco_auto[0];
+            int stazione_scelta = -1;
+            stazioneNode *buffer = inizio;
+            stazioneNode *attuale = inizio;
+            if(attuale == attuale->parent->dx){
+check_dx_1 :      if(  (attuale->dx->distanza - inizio->distanza) < autonomia  &&  attuale->dx !=  albero->Tnil){ // posso
+                     stazione_scelta = attuale->dx->distanza;
+                     attuale = attuale->dx;
+                     goto check_dx_1;
+                  }
+                  if(  (attuale->dx->distanza - inizio->distanza) > autonomia  &&  attuale->dx !=  albero->Tnil){ // non posso
+                     if( stazione_scelta != -1){
+                        return stazione_scelta;
+                     }else{
+                        printf("non raggiungibile\n");
+                        return -1;
+                     }
+                  }
+                  if( attuale->dx == albero->Tnil){ // becco tnil
+                     attuale = attuale->parent;
+                     goto check_parent_1;
+                  }    
+check_parent_1 :  if( attuale == attuale->parent->sx){
+                     goto check_parent;
+                  }
+                  if( attuale == attuale->parent->dx){
+                     attuale = attuale->parent;
+                     goto check_parent_1;
+                  }
+                  if ( attuale == albero->root){
+                     if( stazione_scelta != -1){
+                        return stazione_scelta;
+                     }else{
+                        printf("non raggiungibile\n");
+                        return -1;
+                     }
+                  }
+            }else{
+check_dx :     if(  (attuale->dx->distanza - inizio->distanza) < autonomia  &&  attuale->dx !=  albero->Tnil){ // posso
+                  stazione_scelta = attuale->dx->distanza;
+                  attuale = attuale->dx;
+                  goto check_dx;
+               }
+               if(  (attuale->dx->distanza - inizio->distanza) > autonomia  &&  attuale->dx !=  albero->Tnil){ // non posso
+                  attuale = attuale->dx->sx;
+                  goto check_sx;
+               }
+               if( attuale->dx == albero->Tnil){ // becco tnil
+                  attuale = buffer->parent;
+                  goto check_parent;
+               }             
+check_sx :     if(  (attuale->distanza - inizio->distanza) < autonomia  &&  attuale !=  albero->Tnil){ // posso
+                  stazione_scelta = attuale->distanza;
+                  attuale = attuale->dx;
+                  goto check_dx;
+               }
+               if(  (attuale->distanza - inizio->distanza) > autonomia  &&  attuale !=  albero->Tnil){ // non posso
+                  attuale = attuale->sx;
+                  goto check_sx;
+               }
+               if( attuale == albero->Tnil){ // becco tnil
+                  if( stazione_scelta != -1){
+                     return stazione_scelta;
+                  }else{
+                     printf("non raggiungibile\n");
+                     return -1;
+                  }
+               }  
+check_parent : if(  (attuale->distanza - inizio->distanza) < autonomia  &&  attuale !=  albero->Tnil){ // posso
+                  stazione_scelta = attuale->distanza;
+                  buffer = attuale;
+                  goto check_dx;
+               }
+               if(  (attuale->distanza - inizio->distanza) > autonomia  &&  attuale !=  albero->Tnil){ // non posso
+                  if( stazione_scelta != -1){
+                     return stazione_scelta;
+                  }else{
+                     printf("non raggiungibile\n");
+                     return -1;
+                  }
+               }
+               return 0;
+            }
+}
 
+//////////// da riguardare pianifica_decresc
 
+int pianifica_decresc(stazioneNode *inizio , stazioneNode *fine , stazioneTree * albero){
+            int autonomia = inizio->parco_auto[0];
+            int stazione_scelta = -1;
+            stazioneNode *buffer = inizio;
+            stazioneNode *attuale = inizio;
+            if(attuale == attuale->parent->sx){
+check_sx_1 :      if(  (inizio->distanza - attuale->sx->distanza ) < autonomia  &&  attuale->sx !=  albero->Tnil){ // posso
+                     stazione_scelta = attuale->sx->distanza;
+                     attuale = attuale->sx;
+                     goto check_sx_1;
+                  }
+                  if(  (inizio->distanza - attuale->sx->distanza ) > autonomia  &&  attuale->sx !=  albero->Tnil){ // non posso
+                     if( stazione_scelta != -1){
+                        return stazione_scelta;
+                     }else{
+                        printf("non raggiungibile\n");
+                        return -1;
+                     }
+                  }
+                  if( attuale->sx == albero->Tnil){ // becco tnil
+                     attuale = attuale->parent;
+                     goto check_parent_1;
+                  }    
+check_parent_1 :  if( attuale == attuale->parent->dx){
+                     goto check_parent;
+                  }
+                  if( attuale == attuale->parent->sx){
+                     attuale = attuale->parent;
+                     goto check_parent_1;
+                  }
+                  if ( attuale == albero->root){
+                     if( stazione_scelta != -1){
+                        return stazione_scelta;
+                     }else{
+                        printf("non raggiungibile\n");
+                        return -1;
+                     }
+                  }
+            }else{
+check_sx :     if(  ( inizio->distanza - attuale->sx->distanza ) < autonomia  &&  attuale->sx !=  albero->Tnil){ // posso
+                  stazione_scelta = attuale->sx->distanza;
+                  attuale = attuale->sx;
+                  goto check_sx;
+               }
+               if(  ( inizio->distanza - attuale->sx->distanza ) > autonomia  &&  attuale->sx !=  albero->Tnil){ // non posso
+                  attuale = attuale->sx->dx;
+                  goto check_dx;
+               }
+               if( attuale->sx == albero->Tnil){ // becco tnil
+                  attuale = buffer->parent;
+                  goto check_parent;
+               }             
+check_dx :     if(  ( inizio->distanza - attuale->distanza ) < autonomia  &&  attuale !=  albero->Tnil){ // posso
+                  stazione_scelta = attuale->distanza;
+                  attuale = attuale->sx;
+                  goto check_sx;
+               }
+               if(  ( inizio->distanza - attuale->distanza ) > autonomia  &&  attuale !=  albero->Tnil){ // non posso
+                  attuale = attuale->dx;
+                  goto check_dx;
+               }
+               if( attuale == albero->Tnil){ // becco tnil
+                  if( stazione_scelta != -1){
+                     return stazione_scelta;
+                  }else{
+                     printf("non raggiungibile\n");
+                     return -1;
+                  }
+               }  
+check_parent : if(  ( inizio->distanza - attuale->distanza ) < autonomia  &&  attuale !=  albero->Tnil){ // posso
+                  stazione_scelta = attuale->distanza;
+                  buffer = attuale;
+                  goto check_sx;
+               }
+               if(  ( inizio->distanza - attuale->distanza ) > autonomia  &&  attuale !=  albero->Tnil){ // non posso
+                  if( stazione_scelta != -1){
+                     return stazione_scelta;
+                  }else{
+                     printf("non raggiungibile\n");
+                     return -1;
+                  }
+               }
+               return 0;
+            }
+}
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -426,7 +593,7 @@ int main(){
 
    stazioneTree* Stazioni;
    Stazioni = crea_alberoStazioni();
-   stazioneNode* Staz_agg;
+   stazioneNode* Staz_agg , *Staz_buff;
    bool check = false;
    char c = getchar();
    char input[10000] , comando[20], buffer[5000];
@@ -498,7 +665,8 @@ int main(){
                   Staz_agg->parco_auto[contaauto] = valori[x];
                   contaauto++;
                }
-               Staz_agg->auto_presenti = contaauto;
+               Staz_agg->parco_auto[512] = 0;
+               Staz_agg->auto_presenti = valori[1];
                contaauto = 0;
                quicksort(Staz_agg->parco_auto , 0 , Staz_agg->auto_presenti-1);
                printf("aggiunta\n");
@@ -529,36 +697,87 @@ int main(){
             if(Staz_agg == Stazioni->Tnil){
                printf("non aggiunta\n");
             }else{
-               Staz_agg->parco_auto[Staz_agg->auto_presenti] = valori[1];
-               Staz_agg->auto_presenti = Staz_agg->auto_presenti + 1;
-               quicksort(Staz_agg->parco_auto , 0 , Staz_agg->auto_presenti-1);
-               printf("aggiunta\n");
+               if( Staz_agg->auto_presenti == 0){
+                  Staz_agg->parco_auto[0] = valori[1];
+                  Staz_agg->auto_presenti++;
+                  printf("aggiunta\n");
+               }else{
+                  Staz_agg->parco_auto[Staz_agg->auto_presenti] = valori[1];
+                  ++Staz_agg->auto_presenti;
+                  quicksort(Staz_agg->parco_auto , 0 , Staz_agg->auto_presenti-1);
+                  printf("aggiunta\n");
+               }
             }
          }
-
+         
 
          if(strcmp(comando , "rottama-auto") == 0){
             Staz_agg = staz_search(Stazioni, valori[0]);
             if(Staz_agg == Stazioni->Tnil){
                printf("non rottamata\n");
             }else{
-               for(int a =0 ; a < Staz_agg->auto_presenti ; a++){
+               for(int a =0 ; a < 513 ; a++){
+                  
+                  //printf(" %d", Staz_agg->parco_auto[a]);
                   if(valori[1] == Staz_agg->parco_auto[a]){
-                     Staz_agg->parco_auto[a] = 0;
+                     Staz_agg->parco_auto[a] = __INT_MAX__;
                      quicksort(Staz_agg->parco_auto , 0 , Staz_agg->auto_presenti-1);
                      Staz_agg->auto_presenti = Staz_agg->auto_presenti - 1;
                      printf("rottamata\n");
                      break;
+                  }else{
+                     if(Staz_agg->parco_auto[a] == 0 ){
+                        printf("non rottamata\n");
+                        break;
+                     }
+                     if( a == 511 && Staz_agg->parco_auto[a] != valori[1] ){
+                        printf("non rottamata\n");
+                        break;
+                     }
                   }
                }
+
                // AGGIUNGERE NON ROTTAMATA SE NON TROVATA IN ARRAY
             }
+            //printf("\n");
             // FORSE QUI
          }
 
 
          if(strcmp(comando , "pianifica-percorso") == 0){
-            printf("AAAAA\n");
+            Staz_agg = staz_search(Stazioni , valori[0]);
+            Staz_buff = staz_search(Stazioni , valori[1]);
+            if(Staz_agg == Stazioni->Tnil){
+               printf("nessun percorso\n");
+            }else{
+               if(Staz_buff == Stazioni->Tnil){
+                  printf("nessun percorso\n");
+               }
+               if(Staz_agg != Stazioni->Tnil  &&  Staz_buff != Stazioni->Tnil){
+                  int inizio,fine;
+                  inizio = Staz_agg->distanza;
+                  fine = Staz_buff->distanza;
+                  if(inizio == fine){
+                     printf("%d\n",inizio);
+                  }
+                  if(inizio < fine){
+                    
+                     
+
+                     found = false;
+                  }else{
+
+
+                     found = false;
+                  }
+                  printf("AAAAA\n");
+
+
+
+
+               }
+            }
+            
          }
 
 
@@ -582,7 +801,7 @@ int main(){
    delete_staz(Stazioni , Stazioni->root);   // problema utilizzo memoria non sta qui
    free(Stazioni->Tnil);
    free(Stazioni);
-   contatore = contatore - 2;
+   //contatore = contatore - 2;
    //printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
    return 0;
 };
