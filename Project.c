@@ -411,24 +411,31 @@ void print_staz(stazioneNode *nil,stazioneNode *x){
 void pianifica_cresc(stazioneNode *inizio , stazioneNode *fine , stazioneTree * albero){
    stazioneNode *tappa, *buffer;
    tappa = inizio;
+   //for(int i = 0; i<tappa->auto_presenti ; i++){
+    //  printf("%d ",tappa->parco_auto[i]);
+  // }
    int tappe[1000], tappecounter = 0;
    int autonomia;
+   int max;
    tappe[tappecounter] = tappa->distanza;
    tappecounter++;
 label:  autonomia = tappa->parco_auto[tappa->auto_presenti-1];
+//printf("\n%d", autonomia);
    if(  (fine->distanza - tappa->distanza)  < autonomia){
       tappe[tappecounter] = fine->distanza;
       tappecounter++;
-      for(int i = 0 ; i < tappecounter ; i++){
+      for(int i = 0 ; i < tappecounter-1 ; i++){
          printf("%d ",tappe[i]);
       }
+      printf("%d",tappe[tappecounter-1]);
       printf("\n");
       return;
    }else{
-      for( int i = (tappa->distanza + autonomia); i > tappa->distanza ; i--){
+      max = tappa->distanza + autonomia;
+      for( int i = max ; i > tappa->distanza ; i--){
          buffer = staz_search(albero , i);
          if(buffer != albero->Tnil){
-            if( (buffer->distanza - tappa->distanza) < autonomia){
+            if( (buffer->distanza - tappa->distanza) <= autonomia){
                tappa = buffer;
                tappe[tappecounter] = tappa->distanza;
                tappecounter++;
@@ -444,12 +451,39 @@ label:  autonomia = tappa->parco_auto[tappa->auto_presenti-1];
 
 
 
-//////////// da riguardare pianifica_decresc
 
 void pianifica_decresc(stazioneNode *inizio , stazioneNode *fine , stazioneTree * albero){
-           
-
-   printf("A");
+   stazioneNode *tappa, *buffer;
+   tappa = inizio;
+   int tappe[1000], tappecounter = 0;
+   int autonomia;
+   tappe[tappecounter] = tappa->distanza;
+   tappecounter++;
+label:  autonomia = tappa->parco_auto[tappa->auto_presenti-1];
+   if(  (tappa->distanza - fine->distanza)  < autonomia){
+      tappe[tappecounter] = fine->distanza;
+      tappecounter++;
+      for(int i = 0 ; i < tappecounter-1 ; i++){
+         printf("%d ",tappe[i]);
+      }
+      printf("%d",tappe[tappecounter-1]);
+      printf("\n");
+      return;
+   }else{
+      for( int i = (tappa->distanza - autonomia); i < tappa->distanza ; i++){
+         buffer = staz_search(albero , i);
+         if(buffer != albero->Tnil){
+            if( (buffer->distanza - tappa->distanza) <= autonomia){
+               tappa = buffer;
+               tappe[tappecounter] = tappa->distanza;
+               tappecounter++;
+               goto label;
+            }
+         }
+      }
+      printf("nessun percorso\n");
+      return;
+   }
 
 }
 
@@ -574,7 +608,7 @@ int main(){
             }else{
                if( Staz_agg->auto_presenti == 0){
                   Staz_agg->parco_auto[0] = valori[1];
-                  Staz_agg->auto_presenti++;
+                  Staz_agg->auto_presenti = 1;
                   printf("aggiunta\n");
                }else{
                   Staz_agg->parco_auto[Staz_agg->auto_presenti] = valori[1];
@@ -591,21 +625,21 @@ int main(){
             if(Staz_agg == Stazioni->Tnil){
                printf("non rottamata\n");
             }else{
-               for(int a =0 ; a < 513 ; a++){
+               for(int a =0 ; a < 700 ; a++){
                   
                   //printf(" %d", Staz_agg->parco_auto[a]);
                   if(valori[1] == Staz_agg->parco_auto[a]){
                      Staz_agg->parco_auto[a] = __INT_MAX__;
                      quicksort(Staz_agg->parco_auto , 0 , Staz_agg->auto_presenti-1);
-                     Staz_agg->auto_presenti = Staz_agg->auto_presenti - 1;
+                     --Staz_agg->auto_presenti;
                      printf("rottamata\n");
                      break;
                   }else{
-                     if(Staz_agg->parco_auto[a] == 0 ){
+                     if(Staz_agg->parco_auto[a] == -1 ){
                         printf("non rottamata\n");
                         break;
                      }
-                     if( a == 511 && Staz_agg->parco_auto[a] != valori[1] ){
+                     if( a == 698 && Staz_agg->parco_auto[a] != valori[1] ){
                         printf("non rottamata\n");
                         break;
                      }
@@ -638,12 +672,9 @@ int main(){
 
                   if(inizio < fine){
                      pianifica_cresc(Staz_agg , Staz_buff , Stazioni);
-                  }/*else{
-
-
-
-                    
-                  }*/
+                  }else{
+                     pianifica_decresc(Staz_agg , Staz_buff , Stazioni);
+                  }
                }
             } 
          }
