@@ -408,227 +408,40 @@ void print_staz(stazioneNode *nil,stazioneNode *x){
 }
 
 
-int pianifica_cresc(stazioneNode *inizio , stazioneNode *fine , stazioneTree * albero){
-            int autonomia = inizio->parco_auto[inizio->auto_presenti-1];
-            printf("autonomia : %d\n",autonomia);
-            int stazione_scelta = inizio->distanza;
-            stazioneNode *buffer = inizio;
-            stazioneNode *attuale = inizio;
+void pianifica_cresc(stazioneNode *inizio , stazioneNode *fine , stazioneTree * albero){
+   stazioneNode *tappa, *buffer;
+   tappa = inizio;
+   printf("%d ",tappa->distanza);
+   int autonomia;
 
-check_dx :                
-check_sx :     
-check_parent :    
-                     
-                  
-            
-            
-   return -1;
+label:  autonomia = tappa->parco_auto[tappa->auto_presenti-1];
+   if(  (fine->distanza - tappa->distanza)  < autonomia){
+      printf("%d\n", fine->distanza);
+      return;
+   }else{
+      for( int i = autonomia; i > 0 ; i--){
+         buffer = staz_search(albero , i);
+         if(buffer != albero->Tnil){
+            tappa = buffer;
+            printf("%d ", tappa->distanza);
+            goto label;
+         }
+      }
+      printf("errore\n");
+   }
+
+
 }
 
-/*
-int pianifica_cresc(stazioneNode *inizio , stazioneNode *fine , stazioneTree * albero){
-            int autonomia = inizio->parco_auto[inizio->auto_presenti-1];
-            printf("autonomia : %d\n",autonomia);
-            int stazione_scelta = -1;
-            stazioneNode *buffer = inizio;
-            stazioneNode *attuale = inizio;
-            if(attuale == attuale->parent->dx){
-check_dx_1 :      if(  (attuale->dx->distanza - inizio->distanza) <= autonomia  &&  attuale->dx !=  albero->Tnil){ // posso
-                     stazione_scelta = attuale->dx->distanza;
-                     attuale = attuale->dx;
-                     printf("sono figlio dx e vado a destra\n");
-                     goto check_dx_1;
-                  }
-                  if(  (attuale->dx->distanza - inizio->distanza) > autonomia  &&  attuale->dx !=  albero->Tnil){ // non posso
-                     if( stazione_scelta != -1){
-                        printf("debug 1\n");
-                        return stazione_scelta;
-                     }else{
-                        printf("debug 5\n");
-                        //printf("non raggiungibile\n");
-                        return -1;
-                     }
-                  }
-                  if( attuale->dx == albero->Tnil){ // becco tnil
-                     attuale = attuale->parent;
-                     printf("sono figlio dx e vado a parent\n");
-                     goto check_parent_1;
-                  }  
 
-check_parent_1 :  if ( attuale == albero->root){
-                     if( stazione_scelta != -1){
-                        printf("debug 2\n");
-                        return stazione_scelta;
-                     }else{
-                        //printf("non raggiungibile\n");
-                        printf("debug 6\n");
-                        return -1;
-                     }
-                  }
-                  if( attuale == attuale->parent->sx){
-                     //attuale = attuale->parent;
-                     printf("sono figlio sx vado a parent\n");
-                     goto check_parent;
-                  }
-                  if( attuale == attuale->parent->dx){
-                     attuale = attuale->parent;
-                     goto check_parent_1;
-                  }
-            }else{
-check_dx :     if(  (attuale->dx->distanza - inizio->distanza) <= autonomia  &&  attuale->dx !=  albero->Tnil){ // posso
-                  stazione_scelta = attuale->dx->distanza;
-                  attuale = attuale->dx;
-                  printf("vado a destra 1\n");
-                  goto check_dx;
-               }
-               if(  (attuale->dx->distanza - inizio->distanza) > autonomia  &&  attuale->dx !=  albero->Tnil){ // non posso
-                  attuale = attuale->dx->sx;
-                  printf("vado a sinistra 1\n");
-                  goto check_sx;
-               }
-               if( attuale->dx == albero->Tnil){ // becco tnil
-                  attuale = buffer->parent;
-                  printf("vado a parent 1\n");
-                  goto check_parent;
-               }             
-check_sx :     if(  (attuale->distanza - inizio->distanza) <= autonomia  &&  attuale !=  albero->Tnil){ // posso
-                  stazione_scelta = attuale->distanza;
-                  attuale = attuale->dx;
-                  printf("vado a destra 2\n");
-                  goto check_dx;
-               }
-               if(  (attuale->distanza - inizio->distanza) > autonomia  &&  attuale !=  albero->Tnil){ // non posso
-                  attuale = attuale->sx;
-                  printf("vado a snistra 2\n");
-                  goto check_sx;
-               }
-               if( attuale == albero->Tnil){ // becco tnil
-                  if( stazione_scelta != -1){
-                     printf("debug 3\n");
-                     return stazione_scelta;
-                  }else{
-                     //printf("non raggiungibile\n");
-                     printf("debug 7\n");
-                     return -1;
-                  }
-               }  
-check_parent :    if(attuale < attuale->dx){
-                     printf("sono minore del figlio dx quindi risalgo a parent\n");
-                     attuale = attuale->parent;
-                     goto check_parent;
-                  }else{
-                     if(  (attuale->distanza - inizio->distanza) <= autonomia  &&  attuale !=  albero->Tnil){ // posso
-                     stazione_scelta = attuale->distanza;
-                     buffer = attuale;
-                     printf("vado a destra 3\n");
-                     goto check_dx;
-                     }
-                     if(  (attuale->distanza - inizio->distanza) > autonomia  &&  attuale !=  albero->Tnil){ // non posso
-                        if( stazione_scelta != -1){
-                           printf("debug 4\n");
-                           return stazione_scelta;
-                     }else{
-                        //printf("non raggiungibile\n");
-                        printf("debug 8\n");
-                        return -1;
-                        }
-                     }
-                     if(attuale == albero->Tnil){
-                        printf("errore\n");
-                     }
-                  }
-            }
-            printf("debug 9\n");
-   return -1;
-}*/
 
 //////////// da riguardare pianifica_decresc
 
-int pianifica_decresc(stazioneNode *inizio , stazioneNode *fine , stazioneTree * albero){
-            int autonomia = inizio->parco_auto[inizio->auto_presenti];
-            int stazione_scelta = -1;
-            stazioneNode *buffer = inizio;
-            stazioneNode *attuale = inizio;
-            if(attuale == attuale->parent->sx){
-check_sx_1 :      if(  (inizio->distanza - attuale->sx->distanza ) < autonomia  &&  attuale->sx !=  albero->Tnil){ // posso
-                     stazione_scelta = attuale->sx->distanza;
-                     attuale = attuale->sx;
-                     goto check_sx_1;
-                  }
-                  if(  (inizio->distanza - attuale->sx->distanza ) > autonomia  &&  attuale->sx !=  albero->Tnil){ // non posso
-                     if( stazione_scelta != -1){
-                        return stazione_scelta;
-                     }else{
-                        //printf("non raggiungibile\n");
-                        return -1;
-                     }
-                  }
-                  if( attuale->sx == albero->Tnil){ // becco tnil
-                     attuale = attuale->parent;
-                     goto check_parent_1;
-                  }    
-check_parent_1 :  if( attuale == attuale->parent->dx){
-                     goto check_parent;
-                  }
-                  if( attuale == attuale->parent->sx){
-                     attuale = attuale->parent;
-                     goto check_parent_1;
-                  }
-                  if ( attuale == albero->root){
-                     if( stazione_scelta != -1){
-                        return stazione_scelta;
-                     }else{
-                        //printf("non raggiungibile\n");
-                        return -1;
-                     }
-                  }
-            }else{
-check_sx :     if(  ( inizio->distanza - attuale->sx->distanza ) < autonomia  &&  attuale->sx !=  albero->Tnil){ // posso
-                  stazione_scelta = attuale->sx->distanza;
-                  attuale = attuale->sx;
-                  goto check_sx;
-               }
-               if(  ( inizio->distanza - attuale->sx->distanza ) > autonomia  &&  attuale->sx !=  albero->Tnil){ // non posso
-                  attuale = attuale->sx->dx;
-                  goto check_dx;
-               }
-               if( attuale->sx == albero->Tnil){ // becco tnil
-                  attuale = buffer->parent;
-                  goto check_parent;
-               }             
-check_dx :     if(  ( inizio->distanza - attuale->distanza ) < autonomia  &&  attuale !=  albero->Tnil){ // posso
-                  stazione_scelta = attuale->distanza;
-                  attuale = attuale->sx;
-                  goto check_sx;
-               }
-               if(  ( inizio->distanza - attuale->distanza ) > autonomia  &&  attuale !=  albero->Tnil){ // non posso
-                  attuale = attuale->dx;
-                  goto check_dx;
-               }
-               if( attuale == albero->Tnil){ // becco tnil
-                  if( stazione_scelta != -1){
-                     return stazione_scelta;
-                  }else{
-                     //printf("non raggiungibile\n");
-                     return -1;
-                  }
-               }  
-check_parent : if(  ( inizio->distanza - attuale->distanza ) < autonomia  &&  attuale !=  albero->Tnil){ // posso
-                  stazione_scelta = attuale->distanza;
-                  buffer = attuale;
-                  goto check_sx;
-               }
-               if(  ( inizio->distanza - attuale->distanza ) > autonomia  &&  attuale !=  albero->Tnil){ // non posso
-                  if( stazione_scelta != -1){
-                     return stazione_scelta;
-                  }else{
-                     //printf("non raggiungibile\n");
-                     return -1;
-                  }
-               }
-            }
-            
-return -1;
+void pianifica_decresc(stazioneNode *inizio , stazioneNode *fine , stazioneTree * albero){
+           
+
+   printf("A");
+
 }
 
 
@@ -648,9 +461,10 @@ int main(){
    char input[10000] , comando[20], buffer[5000];
    int valori[514], val =0 ,contaauto =0;
    int i=0 , count=0 , buf=0;
+    int inizio,fine;
 
-   int trov, conto = 0;
-   int percorso [1000];
+   //int trov, conto = 0;
+   //int percorso [1000];
 
    while(c != EOF){
 
@@ -806,80 +620,20 @@ int main(){
                   printf("nessun percorso\n");
                }else{
 
-
-                  int inizio,fine;
                   inizio = Staz_agg->distanza;
                   fine = Staz_buff->distanza;
-
-
 
                   if(inizio == fine){
                      printf("%d\n",inizio);
                   }
 
-
-
                   if(inizio < fine){
-
-
-
-                     //int trov, conto = 0;
-                     //int percorso [1000];
-                     trov = inizio;
-                     percorso[0] = trov;
-                     conto++;
-                     while(trov != fine && trov != -1){
-                        trov = pianifica_cresc(Staz_agg , Staz_buff , Stazioni);
-                        if(trov == -1){
-                           printf("nessun percorso\n");
-                           break;
-                        }
-                        //percorso[conto] = trov;
-                        printf("%d\n",trov);
-                        conto++;
-                        Staz_agg = staz_search(Stazioni , trov);
-                     }
-                     if(trov != -1){
-                           percorso[conto] = fine;
-                           conto ++;
-                           printf("\n");
-                           for(int z=0 ; z<conto; z++){
-                              printf("%d ",percorso[z]);
-                           }
-                           printf("\n");
-                     }
-                     conto = 0;
-
-                     
-
-
+                     pianifica_cresc(Staz_agg , Staz_buff , Stazioni);
                   }/*else{
 
 
 
-                     trov = fine;
-                     percorso[0] = trov;
-                     conto++;
-                     while(trov != inizio){
-                        trov = pianifica_decresc(Staz_buff , Staz_agg , Stazioni);
-                        if(trov == -1){
-                           printf("non raggiungibile\n");
-                           break;
-                        }
-                        percorso[conto] = trov;
-                        conto++;
-                        Staz_buff = staz_search(Stazioni , trov);
-                     }
-                     if(trov != -1){
-                           percorso[conto] = inizio;
-                           conto ++;
-                           printf("\n");
-                           for(int z=0 ; z<conto; z++){
-                              printf("%d ",percorso[z]);
-                           }
-                           printf("\n");
-                     }
-                     conto = 0;
+                    
                   }*/
                }
             } 
