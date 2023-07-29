@@ -411,25 +411,34 @@ void print_staz(stazioneNode *nil,stazioneNode *x){
 void pianifica_cresc(stazioneNode *inizio , stazioneNode *fine , stazioneTree * albero){
    stazioneNode *tappa, *buffer;
    tappa = inizio;
-   printf("%d ",tappa->distanza);
+   int tappe[1000], tappecounter = 0;
    int autonomia;
-
+   tappe[tappecounter] = tappa->distanza;
+   tappecounter++;
 label:  autonomia = tappa->parco_auto[tappa->auto_presenti-1];
    if(  (fine->distanza - tappa->distanza)  < autonomia){
-      printf("%d\n", fine->distanza);
+      tappe[tappecounter] = fine->distanza;
+      tappecounter++;
+      for(int i = 0 ; i < tappecounter ; i++){
+         printf("%d ",tappe[i]);
+      }
+      printf("\n");
       return;
    }else{
-      for( int i = autonomia; i > 0 ; i--){
+      for( int i = (tappa->distanza + autonomia); i > tappa->distanza ; i--){
          buffer = staz_search(albero , i);
          if(buffer != albero->Tnil){
-            tappa = buffer;
-            printf("%d ", tappa->distanza);
-            goto label;
+            if( (buffer->distanza - tappa->distanza) < autonomia){
+               tappa = buffer;
+               tappe[tappecounter] = tappa->distanza;
+               tappecounter++;
+               goto label;
+            }
          }
       }
-      printf("errore\n");
+      printf("nessun percorso\n");
+      return;
    }
-
 
 }
 
