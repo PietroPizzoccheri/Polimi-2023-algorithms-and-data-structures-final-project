@@ -403,101 +403,67 @@ void print_staz(stazioneNode *nil,stazioneNode *x){
 
 
 
-int tappe[1000], tappecounter = 0;
-
-void ottimizza_cresc(stazioneTree *albero){
-   stazioneNode *x;
-   x = staz_search(albero , 0);
-   int buf;
-   int autonomia;
-   int differenza;
-   for(int i = 1 ; i < tappecounter-1 ; i++){
-      buf = tappe[i];
-         for(int j = buf ; j > tappe[i-1] ; j--){
-            x = staz_search(albero , j);
-            if( x != albero->Tnil){
-               autonomia = x->parco_auto[x->auto_presenti-1];
-               differenza = tappe[i+1] - x->distanza;
-               if(autonomia > differenza){
-                  tappe[i] = x->distanza;
-               }
-            }
-         }
-   }
-}
-
-void ottimizza_decresc(stazioneTree *albero){
-   stazioneNode *x;
-   x = staz_search(albero , 0);
-   int buf;
-   int autonomia;
-   int differenza;
-   for(int i = 1 ; i < tappecounter-1 ; i++){
-      buf = tappe[i];
-         for(int j = buf ; j > tappe[i-1] ; j--){
-            x = staz_search(albero , j);
-            if( x != albero->Tnil){
-               autonomia = x->parco_auto[x->auto_presenti-1];
-               differenza = tappe[i+1] - x->distanza;
-               if(autonomia > differenza){
-                  tappe[i] = x->distanza;
-               }
-            }
-         }
-   }
-}
-
-
-
+int tappe[100000], tappecounter = 0;
 
 
 
 void pianifica_cresc(stazioneNode *inizio , stazioneNode *fine , stazioneTree * albero){
    stazioneNode *tappa, *buffer;
-   tappa = inizio;
+
+   tappa = fine;
    
    int autonomia;
-   int max;
-   tappe[tappecounter] = tappa->distanza;
+   //int max;
+   int pick = -1;
+   tappe[tappecounter] = tappa->distanza; // stamparle al contrario poi
    tappecounter++;
-label:  autonomia = tappa->parco_auto[tappa->auto_presenti-1];
-//printf("\n%d", autonomia);
-   if(  (fine->distanza - tappa->distanza)  < autonomia){
-      tappe[tappecounter] = fine->distanza;
+
+label:   
+   autonomia = inizio->parco_auto[inizio->auto_presenti-1];
+   //printf("\n autonomia staz iniziale : %d" , autonomia);
+   if(tappa->distanza - inizio->distanza <= autonomia){
+      tappe[tappecounter] = inizio->distanza;
       tappecounter++;
-      
-      ottimizza_cresc(albero);// funzione per trovare stazione ottimale
-      
-      for(int i = 0 ; i < tappecounter-1 ; i++){
-         printf("%d ",tappe[i]);
-      }
-      printf("%d",tappe[tappecounter-1]);
-      printf("\n");
-      tappecounter = 0;
-      memset(tappe , 0 , sizeof(tappe));
-      return;
+      goto print;
    }else{
-      max = tappa->distanza + autonomia;
-      for( int i = max ; i > tappa->distanza ; i--){
+      for(int i = tappa->distanza - 1  ; i >= inizio->distanza ; i--){
          buffer = staz_search(albero , i);
+         //printf("\n%d",buffer->distanza);
          if(buffer != albero->Tnil){
-            if( (buffer->distanza - tappa->distanza) <= autonomia){
-               tappa = buffer;
-               tappe[tappecounter] = tappa->distanza;
-               tappecounter++;
-               goto label;
-            }
+            autonomia = buffer->parco_auto[buffer->auto_presenti - 1];
+            //printf("\nstaz trovata %d", buffer->distanza);
+         }
+         if(  tappa->distanza - buffer->distanza  <= autonomia){
+            pick = buffer->distanza;
          }
       }
-      printf("nessun percorso\n");
-      tappecounter = 0;
-      memset(tappe , 0 , sizeof(tappe));
-      return;
+      
+      if ( pick == -1){
+         printf("nessun percorso\n");
+         tappecounter = 0;
+         memset(tappe , 0 , sizeof(tappe));
+         return;
+      }else{
+         //printf("\n");
+         //printf("pick : %d", pick);
+         tappe[tappecounter] = pick;
+         tappecounter++;
+         tappa = staz_search(albero , pick);
+         pick = -1;
+         goto label;
+      }
    }
 
+print:  
+   for(int i = tappecounter - 1  ; i > 0 ; i--){
+      printf("%d ",tappe[i]);
+   }
+   printf("%d",tappe[0]);
+   printf("\n");
+   tappecounter = 0;
+   memset(tappe , 0 , sizeof(tappe));
+   return;
 }
-
-
 
 
 void pianifica_decresc(stazioneNode *inizio , stazioneNode *fine , stazioneTree * albero){
@@ -547,6 +513,108 @@ autonomia = tappa->parco_auto[tappa->auto_presenti-1];
    }
 
 }
+
+
+
+
+
+/*
+void pianifica_cresc(stazioneNode *inizio , stazioneNode *fine , stazioneTree * albero){
+   stazioneNode *tappa, *buffer;
+   tappa = inizio;
+   
+   int autonomia;
+   int max;
+   tappe[tappecounter] = tappa->distanza;
+   tappecounter++;
+label:  
+   autonomia = tappa->parco_auto[tappa->auto_presenti-1];
+   //printf("\n%d", autonomia);
+   if(  (fine->distanza - tappa->distanza)  < autonomia){
+      tappe[tappecounter] = fine->distanza;
+      tappecounter++;
+      
+      ottimizza_cresc(albero);// funzione per trovare stazione ottimale
+      
+      for(int i = 0 ; i < tappecounter-1 ; i++){
+         printf("%d ",tappe[i]);
+      }
+      printf("%d",tappe[tappecounter-1]);
+      printf("\n");
+      tappecounter = 0;
+      memset(tappe , 0 , sizeof(tappe));
+      return;
+   }else{
+      max = tappa->distanza + autonomia;
+      for( int i = max ; i > tappa->distanza ; i--){
+         buffer = staz_search(albero , i);
+         if(buffer != albero->Tnil){
+            if( (buffer->distanza - tappa->distanza) <= autonomia){
+               tappa = buffer;
+               tappe[tappecounter] = tappa->distanza;
+               tappecounter++;
+               goto label;
+            }
+         }
+      }
+      printf("nessun percorso\n");
+      tappecounter = 0;
+      memset(tappe , 0 , sizeof(tappe));
+      return;
+   }
+
+}
+
+*/
+
+/*
+void pianifica_decresc(stazioneNode *inizio , stazioneNode *fine , stazioneTree * albero){
+   stazioneNode *tappa, *buffer;
+   tappa = inizio;
+   int autonomia;
+   tappe[tappecounter] = tappa->distanza;
+   tappecounter++;
+
+label:  
+
+autonomia = tappa->parco_auto[tappa->auto_presenti-1];
+   if(  (tappa->distanza - fine->distanza)  < autonomia){ //arrivo alla fine
+
+      tappe[tappecounter] = fine->distanza;
+      tappecounter++;
+      
+      //ottimizza_decresc(albero);
+      
+      for(int i = 0 ; i < tappecounter-1 ; i++){
+         printf("%d ",tappe[i]);
+      }
+      printf("%d",tappe[tappecounter-1]);
+      printf("\n");
+      tappecounter = 0;
+      memset(tappe , 0 , sizeof(tappe));
+      return;
+
+   }else{  // tappe intermedie
+
+      for( int i = (tappa->distanza - autonomia); i < tappa->distanza ; i++){
+         buffer = staz_search(albero , i);
+         if(buffer != albero->Tnil){
+            if( (buffer->distanza - tappa->distanza) <= autonomia){
+               tappa = buffer;
+               tappe[tappecounter] = tappa->distanza;
+               tappecounter++;
+               goto label;
+            }
+         }
+      }
+      printf("nessun percorso\n");
+      tappecounter = 0;
+      memset(tappe , 0 , sizeof(tappe));
+      return;
+
+   }
+
+}*/
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
