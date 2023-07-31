@@ -13,6 +13,7 @@ typedef enum {false,true} bool;
 // 0 = black
 // 1 = red
 bool found = false;
+bool scambi = true;
 
 int findmax(int a[]){
    int max = a[0];
@@ -24,30 +25,6 @@ int findmax(int a[]){
    return max;
 }
 
-void quicksort(int a[],int primo,int ultimo){
-   int i, j, pivot, temp;
-   if(primo<ultimo){
-      pivot=primo;
-      i=primo;
-      j=ultimo;     
-      while(i<j){
-         while(a[i]<=a[pivot]&&i<ultimo)
-            i++;
-         while(a[j]>a[pivot])
-            j--;
-         if(i<j){   
-            temp=a[i];
-            a[i]=a[j];
-            a[j]=temp;
-         }
-      }
-      temp=a[pivot];
-      a[pivot]=a[j];
-      a[j]=temp;
-      quicksort(a,primo,j-1);
-      quicksort(a,j+1,ultimo);
-   }
-}
 
 // nodo auto
 
@@ -463,10 +440,10 @@ label:
          if(buffer != albero->Tnil){
             autonomia = findmax(buffer->parco_auto);
             //printf("\nstaz trovata %d", buffer->distanza);
-         }
-         if(  tappa->distanza - buffer->distanza  <= autonomia){
-            pick = buffer->distanza;
-         }
+            if(  tappa->distanza - buffer->distanza  <= autonomia){
+               pick = buffer->distanza;
+            }
+         }   
       }
       
       if ( pick == -1){
@@ -496,7 +473,7 @@ print:
    return;
 }
 
-void ottimizza_decresc(stazioneTree *albero){
+void ottimizza_decresc(stazioneTree *albero){ // sistemare perchè array tappe sarà in ordine crescente
    stazioneNode *x;
    //x = staz_search(albero , 0);
    int buf;
@@ -515,6 +492,8 @@ void ottimizza_decresc(stazioneTree *albero){
             }
          }
    }
+
+   // INSERIRE SCAMBI = TRUE SE MODIFICO ARRAY
 }
 
 
@@ -522,65 +501,65 @@ void ottimizza_decresc(stazioneTree *albero){
 
 void pianifica_decresc(stazioneNode *inizio , stazioneNode *fine , stazioneTree * albero){ //   INIZIO > FINE
    stazioneNode *tappa, *buffer;
-   tappa = inizio;
+
+   tappa = fine;
+   
    int autonomia;
-   int maxdist = __INT_MAX__;  
-   int raggiungibile;
+   //int max;
    int pick = -1;
-   tappe[tappecounter] = tappa->distanza;
+   tappe[tappecounter] = tappa->distanza; // stamparle al contrario poi
    tappecounter++;
 
-label:  
-
-autonomia = findmax(tappa->parco_auto);
-   if(  (tappa->distanza - fine->distanza)  < autonomia){ //arrivo alla fine
-
-      tappe[tappecounter] = fine->distanza;
+label:   
+   autonomia = findmax(inizio->parco_auto);
+   //printf("\n autonomia staz iniziale : %d" , autonomia);
+   if(inizio->distanza - tappa->distanza <= autonomia){
+      tappe[tappecounter] = inizio->distanza;
       tappecounter++;
-      
-      ottimizza_decresc(albero);
-      
-      for(int i = 0 ; i < tappecounter-1 ; i++){
-         printf("%d ",tappe[i]);
-      }
-      printf("%d",tappe[tappecounter-1]);
-      printf("\n");
-      tappecounter = 0;
-      memset(tappe , 0 , sizeof(tappe));
-      return;
-
-   }else{  // tappe intermedie
-
-      for( int i = (tappa->distanza - autonomia); i < tappa->distanza ; i++){
+      goto print;
+   }else{
+      for(int i = tappa->distanza + 1  ; i <= inizio->distanza ; i++){
          buffer = staz_search(albero , i);
+         //printf("\n%d",buffer->distanza);
          if(buffer != albero->Tnil){
-            raggiungibile = buffer->distanza - buffer->parco_auto[buffer->auto_presenti - 1];
-            if( raggiungibile < maxdist){
-               maxdist = raggiungibile;
+            autonomia = findmax(buffer->parco_auto);
+            //printf("\nstaz trovata %d", buffer->distanza);
+            if( buffer->distanza - tappa->distanza   <= autonomia){
                pick = buffer->distanza;
             }
          }
+         
       }
-
-      if(pick == -1){
+      
+      if ( pick == -1){
          printf("nessun percorso\n");
          tappecounter = 0;
          memset(tappe , 0 , sizeof(tappe));
          return;
+      }else{
+         //printf("\n");
+         //printf("pick : %d", pick);
+         tappe[tappecounter] = pick;
+         tappecounter++;
+         tappa = staz_search(albero , pick);
+         pick = -1;
+         goto label;
       }
-
-      buffer = staz_search( albero , pick);
-      tappa = buffer;
-      tappe[tappecounter] = pick;
-      tappecounter++;
-      pick = -1;
-      raggiungibile = __INT_MAX__;
-      maxdist = __INT_MAX__;
-      goto label;
-
-
    }
 
+//fix: 
+
+
+
+print:  
+   for(int i = tappecounter - 1  ; i > 0 ; i--){
+      printf("%d ",tappe[i]);
+   }
+   printf("%d",tappe[0]);
+   printf("\n");
+   tappecounter = 0;
+   memset(tappe , 0 , sizeof(tappe));
+   return;
 }
 
 
