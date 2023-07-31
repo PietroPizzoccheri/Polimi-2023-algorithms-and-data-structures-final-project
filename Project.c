@@ -327,8 +327,13 @@ void staz_delete(stazioneTree *T, stazioneNode *z){
    stazioneNode *y,*x;
    if(z->sx == T->Tnil || z->dx == T->Tnil){
       y = z;
+
+      
+
+
       //printf("\n HA UN FIGLIO O NON NE HA");
    }else{
+      
       //printf("\n qualcosa non va");
       y = staz_successor(z,T);
    }
@@ -344,15 +349,29 @@ void staz_delete(stazioneTree *T, stazioneNode *z){
    if(y->parent == T->Tnil){
       T->root = x;
    }else{
+
+      
+      
+      // provare a debuggare sotto e nel caso cambiare da z a un'altra variabile se c'è un cambio
+
       if(y == y->parent->sx){
-         y->parent->sx = x;
+         y->parent->sx = x;  // questa istruzione bugga 2948
       }else{
         // printf("\n ok");
          y->parent->dx = x;
       }
    }
    if(y != z){
-      z->distanza = y->distanza;
+      z->distanza = y->distanza; // FORSE PROBLEMA QUA
+      z->auto_presenti = y->auto_presenti;
+      for(int i =0;i<512;i++){
+         z->parco_auto[i] = y->parco_auto[i];
+      }
+      /*debug = staz_search(T , 2948);
+         printf("\nparco auto 2948 : ");
+         for(int i =0;i<30;i++){
+            printf("%d ",debug->parco_auto[i]);
+         }*/
    }
    if(y->colore == 0){
       //printf("\n faccio fixup");
@@ -749,26 +768,7 @@ int main(){
                printf("non demolita\n");
             }else{
 
-
-               if(Staz_agg->distanza == 2941){
-                  printf("\nparco auto 2941 : ");
-                  for(int i =0;i<30;i++){
-                     printf("%d ",Staz_agg->parco_auto[i]);
-                  }
-                  Staz_buff = staz_search(Stazioni , 2948);
-                  printf("\nparco auto 2948 prima di staz delete  : ");
-                  for(int i =0;i<30;i++){
-                     printf("%d ",Staz_buff->parco_auto[i]);
-                  }
-               }
-
-
                staz_delete(Stazioni , Staz_agg);
-               Staz_buff = staz_search(Stazioni , 2948);
-               printf("\nparco auto 2948 dopo : ");
-                  for(int i =0;i<30;i++){
-                     printf("%d ",Staz_buff->parco_auto[i]);
-                  }
                printf("demolita\n");
             }
             
@@ -853,15 +853,6 @@ int main(){
          }
 
       // fino a qui dentro l'if di \n /////////////////////////////////////////
-      Staz_buff = staz_search(Stazioni , 2948);
-         if(Staz_buff != Stazioni->Tnil){
-            printf("dopo %s %d :    ",comando,valori[0]);
-            for(int a =0 ; a < 512 ; a++){
-                  printf("%d ", Staz_buff->parco_auto[a]);
-               }
-              // printf("  debug  ");
-              printf(" parent di parent di 2948 : %d   ",Staz_buff->parent->parent->distanza);
-         }
 
 
 
