@@ -496,6 +496,29 @@ print:
    return;
 }
 
+void ottimizza_decresc(stazioneTree *albero){
+   stazioneNode *x;
+   //x = staz_search(albero , 0);
+   int buf;
+   int autonomia;
+   int differenza;
+   for(int i = 1 ; i < tappecounter-1 ; i++){
+      buf = tappe[i];
+         for(int j = buf ; j > tappe[i-1] ; j++){
+            x = staz_search(albero , j);
+            if( x != albero->Tnil){
+               autonomia = x->parco_auto[x->auto_presenti-1];
+               differenza =  x->distanza - tappe[i+1] ;
+               if(autonomia > differenza){
+                  tappe[i] = x->distanza;
+               }
+            }
+         }
+   }
+}
+
+
+
 
 void pianifica_decresc(stazioneNode *inizio , stazioneNode *fine , stazioneTree * albero){ //   INIZIO > FINE
    stazioneNode *tappa, *buffer;
@@ -515,7 +538,7 @@ autonomia = findmax(tappa->parco_auto);
       tappe[tappecounter] = fine->distanza;
       tappecounter++;
       
-      //ottimizza_decresc(albero);
+      ottimizza_decresc(albero);
       
       for(int i = 0 ; i < tappecounter-1 ; i++){
          printf("%d ",tappe[i]);
