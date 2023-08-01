@@ -6,12 +6,90 @@
 #include <string.h>
 
 // strutture dati 
-//long contatore=0;
+
 typedef enum {false,true} bool;
 
-//typedef enum {r,b} colore_nodo;
-// 0 = black
-// 1 = red
+int array_stazioni[56000];
+int conta_stazioni;
+
+void printArray() {
+    for (int i = 0; i < conta_stazioni; i++)
+        printf("%d ", array_stazioni[i]);
+    printf("\n");
+}
+
+int trova_array_staz(int n){   // se non la trova returna -1
+   for(int i = 0 ; i < conta_stazioni ; i++){
+      if( array_stazioni[i] == n){
+         return n;
+      }
+      if( array_stazioni[i] == __INT_MAX__){
+         return -1;
+      }
+   }
+   return -1;
+}
+
+void merge_array_stazioni( int l, int m, int r) {
+   int i, j, k;
+   int n1 = m - l + 1;
+   int n2 = r - m;
+   int L[n1], R[n2];
+   for (i = 0; i < n1; i++){
+     L[i] = array_stazioni[l + i];
+   }
+   for (j = 0; j < n2; j++){
+     R[j] = array_stazioni[m + 1 + j];
+   }
+   i = 0;
+   j = 0;
+   k = l;
+   while (i < n1 && j < n2) {
+      if (L[i] <= R[j]) {
+         array_stazioni[k] = L[i];
+         i++;
+      }else{
+         array_stazioni[k] = R[j];
+         j++;
+      }
+      k++;
+   }
+   while (i < n1) {
+      array_stazioni[k] = L[i];
+      i++;
+      k++;
+   }
+   while (j < n2) {
+      array_stazioni[k] = R[j];
+      j++;
+      k++;
+   }
+}
+
+
+void mergeSort_array_stazioni( int l, int r) {
+   if (l < r) {
+      int m = l + (r - l) / 2; 
+      mergeSort_array_stazioni( l, m);
+      mergeSort_array_stazioni( m + 1, r);
+      merge_array_stazioni(l, m, r);
+    }
+}
+
+void delete_array_stazioni(int n){
+   for(int i = 0 ; i < conta_stazioni ; i++){
+      if( array_stazioni[i] == n){
+         array_stazioni[i] = __INT_MAX__;
+         mergeSort_array_stazioni(0,conta_stazioni-1);
+         conta_stazioni--;
+         //printArray();
+         return;
+      }
+   }
+}
+
+
+
 bool found = false;
 bool scambi = true;
 
@@ -25,10 +103,6 @@ int findmax(int a[]){
    return max;
 }
 
-
-// nodo auto
-
-//nodo stazione
 typedef struct stazioneNode
 {
     int colore;
@@ -37,7 +111,6 @@ typedef struct stazioneNode
     struct stazioneNode *sx, *dx, *parent;
 } stazioneNode;
 
-//albero stazioni
 typedef struct stazioneTree
 {
    stazioneNode *root,*Tnil;
@@ -76,7 +149,6 @@ stazioneNode* staz_min(stazioneTree* T , stazioneNode *x){
    return x;
 }
 
-
 stazioneNode* staz_successor(stazioneNode* x, stazioneTree* t){
    stazioneNode* y;
    if(x->dx != t->Tnil){
@@ -91,7 +163,6 @@ stazioneNode* staz_successor(stazioneNode* x, stazioneTree* t){
 
    return y;
 }
-
 
 void staz_rot_sx(stazioneTree *T, stazioneNode *x){
    stazioneNode* y = x->dx;
@@ -113,7 +184,6 @@ void staz_rot_sx(stazioneTree *T, stazioneNode *x){
    x->parent = y;
 }
 
-
 void staz_rot_dx(stazioneTree *T, stazioneNode *x){
    stazioneNode* y = x->sx;
    x->sx = y->dx;
@@ -133,7 +203,6 @@ void staz_rot_dx(stazioneTree *T, stazioneNode *x){
    y->dx = x;
    x->parent = y;
 }
-
 
 void staz_insert_fixup(stazioneTree * T, stazioneNode * z){
    stazioneNode* x,*y;
@@ -181,8 +250,6 @@ void staz_insert_fixup(stazioneTree * T, stazioneNode * z){
    }
 }
 
-
-
 void staz_insert(stazioneTree* T, stazioneNode* z){
    stazioneNode *y,*x;
    //printf("\nnodo da inserire %d", z->distanza);
@@ -227,7 +294,6 @@ void staz_insert(stazioneTree* T, stazioneNode* z){
    staz_insert_fixup(T,z);
    //printf("\naggiunta\n");
 }
-
 
 void staz_delete_fixup(stazioneTree *T, stazioneNode *x){
    stazioneNode *w;
@@ -284,10 +350,7 @@ void staz_delete_fixup(stazioneTree *T, stazioneNode *x){
    }
 }
 
-
 void staz_delete(stazioneTree *T, stazioneNode *z);
-
-
 
 void delete_staz(stazioneTree *T, stazioneNode *x){ // problemi qua
      if(x == T->Tnil){
@@ -304,13 +367,8 @@ void staz_delete(stazioneTree *T, stazioneNode *z){
    stazioneNode *y,*x;
    if(z->sx == T->Tnil || z->dx == T->Tnil){
       y = z;
-
-      
-
-
       //printf("\n HA UN FIGLIO O NON NE HA");
    }else{
-      
       //printf("\n qualcosa non va");
       y = staz_successor(z,T);
    }
@@ -326,11 +384,7 @@ void staz_delete(stazioneTree *T, stazioneNode *z){
    if(y->parent == T->Tnil){
       T->root = x;
    }else{
-
-      
-      
       // provare a debuggare sotto e nel caso cambiare da z a un'altra variabile se c'è un cambio
-
       if(y == y->parent->sx){
          y->parent->sx = x;  // questa istruzione bugga 2948
       }else{
@@ -360,10 +414,6 @@ void staz_delete(stazioneTree *T, stazioneNode *z){
    //printf("\nstazione rimossa leaks : %li",contatore);
 }
 
-
-
-
-
 stazioneNode* crea_stazione( stazioneTree* x ,int dist ){  // memory leak
    struct stazioneNode* newstaz = malloc(sizeof(struct stazioneNode));
    //contatore = contatore + 1;
@@ -377,15 +427,11 @@ stazioneNode* crea_stazione( stazioneTree* x ,int dist ){  // memory leak
    for( int a = 0 ; a<512 ; a++){
       newstaz->parco_auto[a] = -1;
    }
-
    //printf("\nstazione a %d e albero parco auto creati", newstaz->distanza);
    return newstaz;
 }
 
-
-
 stazioneTree* crea_alberoStazioni(){  // errore di segmentazione
-
    struct stazioneTree* newStazTree = malloc(sizeof(struct stazioneTree));
    newStazTree->Tnil =  malloc(sizeof(struct stazioneNode));
    //contatore = contatore + 2;
@@ -411,11 +457,11 @@ void print_staz(stazioneNode *nil,stazioneNode *x){
 
 
 
-int tappe[100000], tappecounter = 0;
-
-
+int tappe[50000], tappecounter = 0;
 
 void pianifica_cresc(stazioneNode *inizio , stazioneNode *fine , stazioneTree * albero){
+   mergeSort_array_stazioni(0 , conta_stazioni-1);
+   
    stazioneNode *tappa, *buffer;
 
    tappa = fine;
@@ -423,6 +469,7 @@ void pianifica_cresc(stazioneNode *inizio , stazioneNode *fine , stazioneTree * 
    int autonomia;
    //int max;
    int pick = -1;
+   int staz_buf = 0;
    tappe[tappecounter] = tappa->distanza; // stamparle al contrario poi
    tappecounter++;
 
@@ -434,16 +481,18 @@ label:
       tappecounter++;
       goto print;
    }else{
-      for(int i = tappa->distanza - 1  ; i >= inizio->distanza ; i--){
-         buffer = staz_search(albero , i);
-         //printf("\n%d",buffer->distanza);
-         if(buffer != albero->Tnil){
-            autonomia = findmax(buffer->parco_auto);
-            //printf("\nstaz trovata %d", buffer->distanza);
-            if(  tappa->distanza - buffer->distanza  <= autonomia){
-               pick = buffer->distanza;
-            }
-         }   
+      for(int i = inizio->distanza  ; i <=  tappa->distanza - 1 ; i++){
+         staz_buf = trova_array_staz(i);
+         if(staz_buf != -1){
+            buffer = staz_search(albero , i);
+            if(buffer != albero->Tnil){
+               autonomia = findmax(buffer->parco_auto);
+               if(  tappa->distanza - buffer->distanza  <= autonomia){
+                  pick = buffer->distanza;
+                  break;
+               }
+            }   
+         }
       }
       
       if ( pick == -1){
@@ -473,38 +522,11 @@ print:
    return;
 }
 
-void ottimizza_decresc(stazioneTree *albero){ // sistemare perchè array tappe sarà in ordine crescente
-   for(int i = tappecounter - 1  ; i > 0 ; i--){
-      printf("%d ",tappe[i]);
-   }
-   printf("%d",tappe[0]);
-   printf("\n");
-   stazioneNode *buf , *monte , *valle;
-   int autonomia;
-   int autonomia_buf;
-   int pick;
-   for(int i = tappecounter -2 ; i > 0 ; i--){
-      monte = staz_search(albero , tappe[i+1]);
-      autonomia = findmax(monte->parco_auto);
-      valle = staz_search(albero , tappe[i-1]);
-      for(int j = tappe[i] - 1 ; j > tappe[i-1] ; j--){
-         buf = staz_search(albero , j);
-         if (buf != albero->Tnil){
-            if((monte->distanza - buf->distanza) <= autonomia){
-               autonomia_buf = findmax(buf->parco_auto);
-               if((buf->distanza - valle->distanza) <= autonomia_buf){
-                  pick = buf->distanza;
-                  scambi = true;
-                  tappe[i] = pick;
-                  break;
-               }
-            }
-         }
-      }
-   }
 
-   // INSERIRE SCAMBI = TRUE SE MODIFICO ARRAY
-}
+
+
+
+
 
 void ottimizza_decresc2(stazioneTree *albero){ // sistemare perchè array tappe sarà in ordine crescente
    //for(int i = tappecounter - 1  ; i > 0 ; i--){
@@ -538,23 +560,16 @@ void ottimizza_decresc2(stazioneTree *albero){ // sistemare perchè array tappe 
          break;
       }
    }
-
-   // INSERIRE SCAMBI = TRUE SE MODIFICO ARRAY
 }
-
-
 
 void pianifica_decresc(stazioneNode *inizio , stazioneNode *fine , stazioneTree * albero){ //   INIZIO > FINE
    stazioneNode *tappa, *buffer;
-
    tappa = fine;
-   
    int autonomia;
    //int max;
    int pick = -1;
    tappe[tappecounter] = tappa->distanza; // stamparle al contrario poi
    tappecounter++;
-
 label:   
    autonomia = findmax(inizio->parco_auto);
    //printf("\n autonomia staz iniziale : %d" , autonomia);
@@ -573,9 +588,7 @@ label:
                pick = buffer->distanza;
             }
          }
-         
       }
-      
       if ( pick == -1){
          printf("nessun percorso\n");
          tappecounter = 0;
@@ -591,26 +604,13 @@ label:
          goto label;
       }
    }
-
 fix_print: 
-
-      scambi=true;
-      while(scambi == true){
-         scambi = false;
-         //ottimizza_decresc(albero);
-         //ottimizza_decresc2(albero);
-      }
       scambi = true;
-
       while(scambi == true){
          scambi = false;
-         //ottimizza_decresc(albero);
          ottimizza_decresc2(albero);
-         
-         
       }
       scambi = true;
-
 
    for(int i = tappecounter - 1  ; i > 0 ; i--){
       printf("%d ",tappe[i]);
@@ -631,7 +631,10 @@ fix_print:
 
 
 int main(){
-
+   for(int s = 0 ; s<56000 ; s++){
+      array_stazioni[s] = __INT_MAX__;
+   }
+   int staz_buf = 0;
    stazioneTree* Stazioni;
    Stazioni = crea_alberoStazioni();
    stazioneNode* Staz_agg , *Staz_buff;
@@ -700,7 +703,6 @@ int main(){
       
      
       if(c == '\n'){
-         
          if(strcmp(comando , "aggiungi-stazione") == 0){
             Staz_agg = staz_search(Stazioni , valori[0]);
             if( Staz_agg == Stazioni->Tnil){
@@ -712,6 +714,8 @@ int main(){
                //Staz_agg->parco_auto[512] = 0;
                Staz_agg->auto_presenti = valori[1];
                //quicksort(Staz_agg->parco_auto , 0 , Staz_agg->auto_presenti-1);
+               array_stazioni[conta_stazioni] = Staz_agg->distanza;
+               conta_stazioni++;
                printf("aggiunta\n");
             }else{
                printf("non aggiunta\n");
@@ -728,8 +732,9 @@ int main(){
             if(Staz_agg == Stazioni->Tnil){
                printf("non demolita\n");
             }else{
-
                staz_delete(Stazioni , Staz_agg);
+               staz_buf = trova_array_staz(valori[0]);
+               delete_array_stazioni(staz_buf);
                printf("demolita\n");
             }
             
@@ -807,7 +812,7 @@ int main(){
                   if(inizio < fine){
                      pianifica_cresc(Staz_agg , Staz_buff , Stazioni);
                   }else{
-                     pianifica_decresc(Staz_agg , Staz_buff , Stazioni);
+                     //pianifica_decresc(Staz_agg , Staz_buff , Stazioni);
                   }
                }
             } 
