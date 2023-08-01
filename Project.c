@@ -12,7 +12,7 @@ typedef enum {false,true} bool;
 int array_stazioni[56000];
 int conta_stazioni;
 
-void printArray() {
+void print_array() {
     for (int i = 0; i < conta_stazioni; i++)
         printf("%d ", array_stazioni[i]);
     printf("\n");
@@ -94,7 +94,7 @@ void delete_array_stazioni(int n){
          array_stazioni[i] = __INT_MAX__;
          mergeSort_array_stazioni(0,conta_stazioni-1);
          conta_stazioni--;
-         //printArray();
+         //print_array();
          return;
       }
    }
@@ -542,21 +542,22 @@ print:
 
 
 void ottimizza_decresc2(stazioneTree *albero){ // sistemare perchè array tappe sarà in ordine crescente
-   //for(int i = tappecounter - 1  ; i > 0 ; i--){
-      //printf("%d ",tappe[i]);
-   //}
-   //printf("%d",tappe[0]);
-   //printf("\n");
    stazioneNode *buf , *monte , *valle;
    int autonomia;
    int autonomia_buf;
    int pick;
+   int indice_tappe_sopra;
+   int indice_tappe_sotto;
+   int staz_buf;
    for(int i = 1 ; i < tappecounter - 1 ; i++){
       valle = staz_search(albero , tappe[i-1]);
       monte = staz_search(albero , tappe[i+1]);
       autonomia = findmax(monte->parco_auto);
-      for( int j = tappe[i] - 1 ; j > tappe[i-1] ; j--){
-         buf = staz_search(albero , j);
+      indice_tappe_sopra = trova_indice_array_staz(tappe[i]);
+      indice_tappe_sotto = trova_indice_array_staz(tappe[i-1]);
+      for( int j = indice_tappe_sopra - 1 ; j > indice_tappe_sotto ; j--){
+         staz_buf = array_stazioni[j];
+         buf = staz_search(albero , staz_buf);
          if ( buf != albero->Tnil){
             if((monte->distanza - buf->distanza ) <= autonomia){
                autonomia_buf = findmax(buf->parco_auto);
@@ -564,6 +565,7 @@ void ottimizza_decresc2(stazioneTree *albero){ // sistemare perchè array tappe 
                   pick = buf->distanza;
                   scambi = true;
                   tappe[i] = pick;
+                  
                   break;
                }
             }
@@ -839,7 +841,7 @@ int main(){
                   if(inizio < fine){
                      pianifica_cresc(Staz_agg , Staz_buff , Stazioni);
                   }else{
-                     //pianifica_decresc(Staz_agg , Staz_buff , Stazioni);
+                     pianifica_decresc(Staz_agg , Staz_buff , Stazioni);
                   }
                }
             } 
