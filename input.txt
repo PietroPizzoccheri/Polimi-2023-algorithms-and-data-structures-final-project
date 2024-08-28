@@ -1,7 +1,0 @@
-aggiungi-stazione 1 1 50
-aggiungi-stazione 234 0
-aggiungi-stazione 11 0
-aggiungi-stazione 2 0
-aggiungi-stazione 4 0
-aggiungi-stazione 3 0
-
