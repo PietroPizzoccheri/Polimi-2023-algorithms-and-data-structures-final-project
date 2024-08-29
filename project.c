@@ -1,5 +1,3 @@
-// Prova finale API PIZZOCCHERI 10797420
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
